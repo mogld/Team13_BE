@@ -21,9 +21,11 @@ public class CareworkerService {
     @Transactional(readOnly = true)
     public List<CareworkerDTO> getAllCareworkers() {
         return careworkerRepository.findAll().stream()
+                .filter(Careworker::isActive)  // 활성 상태만 필터링
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional(readOnly = true)
     public CareworkerDTO getCareworkerById(Long id) {
@@ -61,6 +63,7 @@ public class CareworkerService {
     public void deleteCareworker(Long id) {
         Careworker careworker = careworkerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("요양보호사를 찾을 수 없습니다."));
+        careworker.deactivate();
         careworkerRepository.delete(careworker);
     }
 
@@ -73,7 +76,7 @@ public class CareworkerService {
                 careworker.getPhone(),
                 careworker.getCreatedAt(),
                 careworker.getUpdateAt(),
-                careworker.isDeleted()
+                careworker.isActive()
         );
     }
 }

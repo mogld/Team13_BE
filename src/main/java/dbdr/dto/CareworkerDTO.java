@@ -32,5 +32,5 @@ public class CareworkerDTO {
 
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
-    private boolean isDeleted;
+    private boolean isActive;
 }

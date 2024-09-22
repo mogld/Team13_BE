@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 
@@ -12,6 +14,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "recipient")
+@SQLDelete(sql = "UPDATE recipient SET is_active = false WHERE id = ?")
+@SQLRestriction("is_active = true")
 public class Recipient extends BaseEntity {
 
     @Column(nullable = false)

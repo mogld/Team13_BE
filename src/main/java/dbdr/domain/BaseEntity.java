@@ -1,13 +1,17 @@
 package dbdr.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Getter
 @MappedSuperclass
@@ -27,6 +31,10 @@ public abstract class BaseEntity {
     private LocalDateTime updateAt;
 
     @Column(nullable = false)
-    @ColumnDefault("false")
-    private boolean isDeleted;
+    @ColumnDefault("true")
+    private boolean isActive = true;
+
+    public void deactivate() {
+        this.isActive = false;
+    }
 }

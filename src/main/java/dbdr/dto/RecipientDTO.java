@@ -48,5 +48,5 @@ public class RecipientDTO {
 
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
-    private boolean isDeleted;
+    private boolean isActive;
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.List;
 
@@ -11,6 +13,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Table(name = "careworker")
+@SQLDelete(sql = "UPDATE careworker SET is_active = false WHERE id = ?")
+@SQLRestriction("is_active= true")
 public class Careworker extends BaseEntity {
 
     @Column(name = "institution_id", nullable = false)
