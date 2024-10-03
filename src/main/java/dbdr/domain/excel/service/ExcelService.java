@@ -228,9 +228,10 @@ public class ExcelService {
         }
     }
 
+
     private String getCellValue(Cell cell) {
         if (cell == null) {
-            return "";
+            return "";  
         }
 
         switch (cell.getCellType()) {
@@ -253,12 +254,14 @@ public class ExcelService {
         }
     }
 
+
     private byte[] convertWorkbookToByteArray(Workbook workbook) throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
             return outputStream.toByteArray();
         }
     }
+
 
     private void createHeaderRow(Sheet sheet, String... headers) {
         Row headerRow = sheet.createRow(0);
