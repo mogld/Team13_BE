@@ -231,7 +231,7 @@ public class ExcelService {
 
     private String getCellValue(Cell cell) {
         if (cell == null) {
-            return "";  
+            return "";
         }
 
         switch (cell.getCellType()) {
