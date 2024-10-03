@@ -30,9 +30,15 @@ public enum ApplicationError {
     DUPLICATE_CARE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 장기요양번호입니다."),
     DUPLICATE_INSTITUTION_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 요양기관번호입니다."),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 입력값입니다."),
+    INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "잘못된 입력입니다. 010XXXXXXXX 형식으로 입력해주세요."),
 
     // 시스템
-    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 처리 중 오류가 발생했습니다.");
+    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 처리 중 오류가 발생했습니다."),
+
+    //엑셀 파일
+    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
+    FILE_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 다운로드 중 오류가 발생했습니다.");
+
 
     private final HttpStatus status;
     private final String message;

@@ -22,13 +22,13 @@ public class Careworker extends BaseEntity {
 
     private String loginPassword;
 
-    @Column(nullable = false)
+    @Column
     private Long institutionId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
     @Column(nullable = false)
