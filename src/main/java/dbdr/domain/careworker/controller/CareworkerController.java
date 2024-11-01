@@ -58,8 +58,7 @@ public class CareworkerController {
     public ResponseEntity<CareworkerResponseDTO> updateCareworker(
             @PathVariable Long careworkerId,
             @RequestParam("institutionId") @NotNull Long institutionId,
-            @Parameter(hidden = true) @LoginCareworker Careworker careworker,
-            @Valid @RequestBody CareworkerRequestDTO careworkerDTO) {
+            @RequestBody CareworkerRequestDTO careworkerDTO) {
         CareworkerResponseDTO updatedCareworker = careworkerService.updateCareworker(careworkerId, careworkerDTO, institutionId);
         return ResponseEntity.ok(updatedCareworker);
     }
@@ -67,9 +66,8 @@ public class CareworkerController {
     @Operation(summary = "요양보호사 삭제", security = @SecurityRequirement(name = "JWT"))
     @DeleteMapping("/{careworkerId}")
     public ResponseEntity<Void> deleteCareworker(
-            @RequestParam("institutionId") @NotNull Long institutionId,
-            @Parameter(hidden = true) @LoginCareworker Careworker careworker,
-            @PathVariable Long careworkerId) {
+            @PathVariable Long careworkerId,
+            @RequestParam("institutionId") @NotNull Long institutionId) {
         careworkerService.deleteCareworker(careworkerId, institutionId);
         return ResponseEntity.noContent().build();
     }
