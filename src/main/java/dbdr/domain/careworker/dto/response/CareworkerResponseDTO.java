@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class CareworkerResponseDTO {
 
     private Long id;
-    private Institution institutionId;
+    private Long institutionId;
     private String name;
     private String email;
     private String phone;

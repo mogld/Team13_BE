@@ -18,7 +18,7 @@ public class CareworkerRequestDTO {
 
     @Schema(description = "요양기관아이디", example = "1")
     @NotNull(message = "요양기관 아이디는 필수 항목입니다.")
-    private Institution institutionId;
+    private Long institutionId;
 
     @Schema(description = "요양보호사 이름", example = "박경옥")
     @NotBlank(message = "이름은 필수 항목입니다.")
