@@ -1,7 +1,6 @@
 package dbdr.domain.recipient.service;
 
 import dbdr.domain.careworker.entity.Careworker;
-import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.recipient.dto.request.RecipientRequestDTO;
 import dbdr.domain.recipient.dto.response.RecipientResponseDTO;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 public class RecipientService {
 
     private final RecipientRepository recipientRepository;
-    private final CareworkerRepository careworkerRepository;
 
     @Transactional(readOnly = true)
     public List<RecipientResponseDTO> getAllRecipients() {
@@ -36,11 +34,6 @@ public class RecipientService {
         return toResponseDTO(recipient);
     }
 
-    public Careworker getCareworkerById(Long careworkerId) {
-        return careworkerRepository.findById(careworkerId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
-    }
-
     @Transactional
     public RecipientResponseDTO createRecipient(RecipientRequestDTO recipientRequestDTO, Institution institution, Careworker careworker) {
         ensureUniqueCareNumber(recipientRequestDTO.getCareNumber());
@@ -52,9 +45,9 @@ public class RecipientService {
                 recipientRequestDTO.getCareLevel(),
                 recipientRequestDTO.getCareNumber(),
                 recipientRequestDTO.getStartDate(),
-                institution, // Institution 객체로 설정
+                institution,
                 institution.getInstitutionNumber(),
-                careworker  // Careworker 객체로 설정
+                careworker
         );
         recipientRepository.save(recipient);
         return toResponseDTO(recipient);
@@ -62,8 +55,6 @@ public class RecipientService {
 
     @Transactional
     public RecipientResponseDTO updateRecipient(Long recipientId, RecipientRequestDTO recipientRequestDTO, Institution institution, Careworker careworker) {
-        ensureUniqueCareNumber(recipientRequestDTO.getCareNumber());
-
         Recipient recipient = findRecipientById(recipientId);
 
         recipient.updateRecipient(recipientRequestDTO);

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CareworkerRepository extends JpaRepository<Careworker, Long> {
 
-    List<Careworker> findByInstitutionId(Institution institutionId);
+    List<Careworker> findByInstitutionId(Long institutionId);
 
     Optional<Careworker> findByLineUserId(String userId);
 

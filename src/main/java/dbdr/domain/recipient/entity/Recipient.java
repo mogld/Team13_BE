@@ -80,7 +80,7 @@ public class Recipient extends BaseEntity {
         this.careLevel = recipientDTO.getCareLevel();
         this.careNumber = recipientDTO.getCareNumber();
         this.startDate = recipientDTO.getStartDate();
-        this.institution = recipientDTO.getInstitution();
+       // this.institution = recipientDTO.getInstitution(); 요양기관이랑 요양보호사에 대해서는 돌봄대상자가 변경 못한다.
         this.institutionNumber = recipientDTO.getInstitutionNumber();
         //this.careworker = careworker;
     }
