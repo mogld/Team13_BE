@@ -22,5 +22,6 @@ public class RecipientResponseDTO {
     private LocalDate startDate;
     private String institution;
     private Long institutionNumber;
+    private Long institutionId;
     private Long careworkerId;
 }

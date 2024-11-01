@@ -24,7 +24,6 @@ public class CareworkerService {
 
     @Transactional(readOnly = true)
     public List<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId) {
-        Institution institution = institutionService.getInstitutionById(institutionId);
         return careworkerRepository.findByInstitutionId(institutionId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
@@ -73,8 +72,7 @@ public class CareworkerService {
     public void deleteCareworker(Long careworkerId, Long institutionId) {
         Careworker careworker = findCareworkerById(careworkerId);
 
-        Institution institution = institutionService.getInstitutionById(institutionId);
-        if (!careworker.getInstitution().equals(institution)) {
+        if (!careworker.getInstitution().getId().equals(institutionId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
