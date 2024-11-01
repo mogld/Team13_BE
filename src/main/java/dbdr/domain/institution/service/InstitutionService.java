@@ -17,10 +17,15 @@ public class InstitutionService {
 
     private final InstitutionRepository institutionRepository;
 
-    public InstitutionResponse getInstitutionById(Long id) {
-        Institution institution = getInstitution(id);
+    public Institution getInstitutionById(Long id) {
+        return institutionRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
+    }
+
+    public InstitutionResponse getInstitutionResponseById(Long id) {
+        Institution institution = getInstitutionById(id);
         return new InstitutionResponse(institution.getInstitutionNumber(),
-            institution.getInstitutionName());
+                institution.getInstitutionName());
     }
 
     public InstitutionResponse updateInstitution(Long id, InstitutionRequest institutionRequest) {

@@ -37,7 +37,7 @@ public class InstitutionAdminController {
     @Operation(summary = "요양원 하나의 정보 조회")
     @GetMapping("/{id}")
     public ResponseEntity<InstitutionResponse> showOneInstitution(@PathVariable("id") Long id) {
-        InstitutionResponse institutionResponse = institutionService.getInstitutionById(id);
+        InstitutionResponse institutionResponse = institutionService.getInstitutionResponseById(id);
         return ResponseEntity.ok(institutionResponse);
     }
 
