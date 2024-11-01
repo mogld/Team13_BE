@@ -1,5 +1,6 @@
 package dbdr.domain.careworker.dto.response;
 
+import dbdr.domain.institution.entity.Institution;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class CareworkerResponseDTO {
 
     private Long id;
-    private Long institutionId;
+    private Institution institutionId;
     private String name;
     private String email;
     private String phone;

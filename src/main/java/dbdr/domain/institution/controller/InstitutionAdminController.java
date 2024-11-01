@@ -37,25 +37,25 @@ public class InstitutionAdminController {
     @Operation(summary = "요양원 하나의 정보 조회")
     @GetMapping("/{id}")
     public ResponseEntity<InstitutionResponse> showOneInstitution(@PathVariable("id") Long id) {
-        InstitutionResponse institutionResponse = institutionService.getInstitutionById(id);
+        InstitutionResponse institutionResponse = institutionService.getInstitutionResponseById(id);
         return ResponseEntity.ok(institutionResponse);
     }
 
     @Operation(summary = "요양원 추가")
     @PostMapping
     public ResponseEntity<InstitutionResponse> addInstitution(
-        @Valid @RequestBody InstitutionRequest institutionRequest) {
+            @Valid @RequestBody InstitutionRequest institutionRequest) {
         InstitutionResponse institutionResponse = institutionService.addInstitution(
-            institutionRequest);
+                institutionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(institutionResponse);
     }
 
     @Operation(summary = "요양원 정보 수정")
     @PutMapping("/{id}")
     public ResponseEntity<InstitutionResponse> updateInstitution(@PathVariable("id") Long id,
-        @Valid @RequestBody InstitutionRequest institutionRequest) {
+                                                                 @Valid @RequestBody InstitutionRequest institutionRequest) {
         InstitutionResponse institutionResponse = institutionService.updateInstitution(id,
-            institutionRequest);
+                institutionRequest);
         return ResponseEntity.ok(institutionResponse);
     }
 
