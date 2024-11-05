@@ -2,6 +2,8 @@ package dbdr.domain.careworker.repository;
 
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.institution.entity.Institution;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalTime;
@@ -12,6 +14,7 @@ public interface CareworkerRepository extends JpaRepository<Careworker, Long> {
 
     List<Careworker> findByInstitutionId(Long institutionId);
 
+    Page<Careworker> findAllByInstitutionId(Long institutionId, Pageable pageable);
     Optional<Careworker> findByLineUserId(String userId);
 
     List<Careworker> findByAlertTime(LocalTime currentTime);

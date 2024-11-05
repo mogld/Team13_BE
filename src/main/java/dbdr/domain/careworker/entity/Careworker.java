@@ -3,16 +3,14 @@ package dbdr.domain.careworker.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
 import dbdr.domain.institution.entity.Institution;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -39,6 +37,16 @@ public class Careworker extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id")
     private Institution institution;
+
+    //이부분 잘 한건지...?모르겠네....
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "careworker_working_days", joinColumns = @JoinColumn(name = "careworker_id"))
+    @Column(name = "working_day")
+    private List<LocalDate> workingDays;
+
+    public void updateWorkingDays(List<LocalDate> workingDays) {
+        this.workingDays = workingDays;
+    }
 
     @Column(nullable = true)
     private String lineUserId;
@@ -68,6 +76,7 @@ public class Careworker extends BaseEntity {
     public void updateLineUserId(String lineUserId) {
         this.lineUserId = lineUserId;
     }
+
 
     public void updateAlertTime(LocalTime alertTime) {
         this.alertTime = alertTime;
