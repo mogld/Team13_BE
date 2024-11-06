@@ -3,16 +3,14 @@ package dbdr.domain.careworker.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
 import dbdr.domain.institution.entity.Institution;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -39,6 +37,15 @@ public class Careworker extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id")
     private Institution institution;
+
+    // 근무일 정보를 저장하는 필드로, 요일들을 문자열 리스트 형태로 저장합니다.
+    // ElementCollection 어노테이션을 사용하여 별도의 테이블에 매핑합니다.
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<String> workingDays;
+
+    public void setWorkingDays(List<String> workingDays) {
+        this.workingDays = workingDays;
+    }
 
     @Column(nullable = true)
     private String lineUserId;
@@ -68,6 +75,7 @@ public class Careworker extends BaseEntity {
     public void updateLineUserId(String lineUserId) {
         this.lineUserId = lineUserId;
     }
+
 
     public void updateAlertTime(LocalTime alertTime) {
         this.alertTime = alertTime;
