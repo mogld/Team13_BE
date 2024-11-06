@@ -1,11 +1,11 @@
 package dbdr.domain.careworker.dto.response;
 
-import dbdr.domain.careworker.entity.DayOfWeek;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Set;
 
 @Getter

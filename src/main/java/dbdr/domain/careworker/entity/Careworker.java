@@ -1,9 +1,7 @@
 package dbdr.domain.careworker.entity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Set;
 
 import dbdr.domain.core.base.entity.BaseEntity;
