@@ -1,18 +1,18 @@
 package dbdr.domain.recipient.service;
 
 import dbdr.domain.careworker.entity.Careworker;
-import dbdr.domain.careworker.service.CareworkerService;
 import dbdr.domain.institution.entity.Institution;
-import dbdr.domain.institution.service.InstitutionService;
 import dbdr.domain.recipient.dto.request.RecipientRequestDTO;
 import dbdr.domain.recipient.dto.response.RecipientResponseDTO;
 import dbdr.domain.recipient.entity.Recipient;
 import dbdr.domain.recipient.repository.RecipientRepository;
+import dbdr.domain.careworker.service.CareworkerService;
+import dbdr.domain.institution.service.InstitutionService;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,82 +21,142 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecipientService {
 
     private final RecipientRepository recipientRepository;
-    private final InstitutionService institutionService;
     private final CareworkerService careworkerService;
+    private final InstitutionService institutionService;
 
+    // 전체 돌봄대상자 목록 조회 (관리자용)
     @Transactional(readOnly = true)
-    public List<RecipientResponseDTO> getAllRecipients() {
-        return recipientRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<RecipientResponseDTO> getAllRecipients(Pageable pageable) {
+        return recipientRepository.findAll(pageable)
+                .map(this::toResponseDTO);
     }
 
+    // 특정 돌봄대상자 조회 (관리자용)
     @Transactional(readOnly = true)
     public RecipientResponseDTO getRecipientById(Long recipientId) {
         Recipient recipient = findRecipientById(recipientId);
         return toResponseDTO(recipient);
     }
 
+    // 새로운 돌봄대상자 추가 (관리자용)
     @Transactional
-    public RecipientResponseDTO createRecipient(RecipientRequestDTO recipientRequestDTO) {
-        Institution institution = institutionService.getInstitutionById(recipientRequestDTO.getInstitutionId());
-        Careworker careworker = careworkerService.getCareworkerById(recipientRequestDTO.getCareworkerId());
-        ensureUniqueCareNumber(recipientRequestDTO.getCareNumber());
+    public RecipientResponseDTO createRecipient(RecipientRequestDTO recipientDTO) {
+        ensureUniqueCareNumber(recipientDTO.getCareNumber());
+        Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
+        Institution institution = institutionService.getInstitutionById(recipientDTO.getInstitutionId());
 
-        Recipient recipient = new Recipient(
-                recipientRequestDTO.getName(),
-                recipientRequestDTO.getBirth(),
-                recipientRequestDTO.getGender(),
-                recipientRequestDTO.getCareLevel(),
-                recipientRequestDTO.getCareNumber(),
-                recipientRequestDTO.getStartDate(),
-                institution,
-                institution.getInstitutionNumber(),
-                careworker
-        );
+        Recipient recipient = new Recipient(recipientDTO, institution, careworker);
         recipientRepository.save(recipient);
         return toResponseDTO(recipient);
     }
 
+    // 돌봄대상자 정보 수정 (관리자용)
     @Transactional
-    public RecipientResponseDTO updateRecipient(Long recipientId, RecipientRequestDTO recipientRequestDTO,
-                                                Long institutionId, Long careworkerId) {
+    public RecipientResponseDTO updateRecipient(Long recipientId, RecipientRequestDTO recipientDTO) {
         Recipient recipient = findRecipientById(recipientId);
-
-        // 권한 검증
-        validateAccessPermission(recipient, institutionId, careworkerId);
-
-        recipient.updateRecipient(recipientRequestDTO);
+        recipient.updateRecipient(recipientDTO);
         return toResponseDTO(recipient);
     }
 
+    // 돌봄대상자 삭제 (관리자용)
     @Transactional
-    public void deleteRecipient(Long recipientId, Long institutionId, Long careworkerId) {
+    public void deleteRecipient(Long recipientId) {
         Recipient recipient = findRecipientById(recipientId);
-
-        // 권한 검증
-        validateAccessPermission(recipient, institutionId, careworkerId);
-
         recipient.deactivate();
         recipientRepository.delete(recipient);
     }
 
+    //전체 돌봄대상자 목록 조회 (요양보호사용)
+    @Transactional(readOnly = true)
+    public Page<RecipientResponseDTO> getRecipientsByCareworker(Long careworkerId, Pageable pageable) {
+        return recipientRepository.findByCareworkerId(careworkerId, pageable)
+                .map(this::toResponseDTO);
+    }
 
-    private void validateAccessPermission(Recipient recipient, Long institutionId, Long careworkerId) {
-        if (institutionId != null) {
-            // 요양원 관리자인 경우, institutionId와 돌봄대상자의 요양원 ID가 일치하는지 확인
-            if (!recipient.getInstitution().getId().equals(institutionId)) {
-                throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-            }
-        } else if (careworkerId != null) {
-            // 요양보호사인 경우, 본인의 돌봄대상자인지 확인
-            if (recipient.getCareworker() == null || !recipient.getCareworker().getId().equals(careworkerId)) {
-                throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-            }
-        } else {
-            // 권한 정보가 없는 경우 접근 제한
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+    //전체 돌봄대상자 목록 조회 (요양원용)
+    @Transactional(readOnly = true)
+    public Page<RecipientResponseDTO> getRecipientsByInstitution(Long institutionId, Pageable pageable) {
+        return recipientRepository.findByInstitutionId(institutionId, pageable)
+                .map(this::toResponseDTO);
+    }
+
+    //요양보호사가 담당하는 특정 돌봄대상자 정보 조회
+    @Transactional(readOnly = true)
+    public RecipientResponseDTO getRecipientByCareworker(Long recipientId, Long careworkerId) {
+        Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
+        return toResponseDTO(recipient);
+    }
+
+    //요양원이 관리하는 특정 돌봄대상자 정보 조회
+    @Transactional(readOnly = true)
+    public RecipientResponseDTO getRecipientByInstitution(Long recipientId, Long institutionId) {
+        Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
+        return toResponseDTO(recipient);
+    }
+
+    //요양보호사가 새로운 돌봄대상자를 추가
+    @Transactional
+    public RecipientResponseDTO createRecipientForCareworker(RecipientRequestDTO recipientDTO, Long careworkerId) {
+        ensureUniqueCareNumber(recipientDTO.getCareNumber());
+        Careworker careworker = careworkerService.getCareworkerById(careworkerId);
+        Recipient recipient = new Recipient(recipientDTO, careworker);
+        recipientRepository.save(recipient);
+        return toResponseDTO(recipient);
+    }
+
+    //요양원이 새로운 돌봄대상자(요양보호사 배정 필수)를 추가
+    @Transactional
+    public RecipientResponseDTO createRecipientForInstitution(RecipientRequestDTO recipientDTO, Long institutionId) {
+        ensureUniqueCareNumber(recipientDTO.getCareNumber());
+        Institution institution = institutionService.getInstitutionById(institutionId);
+        Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
+
+        Recipient recipient = new Recipient(recipientDTO, institution, careworker);
+        recipientRepository.save(recipient);
+        return toResponseDTO(recipient);
+    }
+
+    //요양보호사가 담당하는 돌봄대상자 정보 수정
+    @Transactional
+    public RecipientResponseDTO updateRecipientForCareworker(Long recipientId, RecipientRequestDTO recipientDTO, Long careworkerId) {
+        Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
+        recipient.updateRecipient(recipientDTO);
+        return toResponseDTO(recipient);
+    }
+
+    //요양원에 속한 돌봄대상자 정보 수정
+    @Transactional
+    public RecipientResponseDTO updateRecipientForInstitution(Long recipientId, RecipientRequestDTO recipientDTO, Long institutionId) {
+        Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
+        recipient.updateRecipient(recipientDTO);
+        return toResponseDTO(recipient);
+    }
+
+    //요양보호사가 담당하는 돌봄대상자 삭제
+    @Transactional
+    public void deleteRecipientForCareworker(Long recipientId, Long careworkerId) {
+        Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
+        recipient.deactivate();
+        recipientRepository.delete(recipient);
+    }
+
+    //요양원에 속한 돌봄대상자 삭제
+    @Transactional
+    public void deleteRecipientForInstitution(Long recipientId, Long institutionId) {
+        Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
+        recipient.deactivate();
+        recipientRepository.delete(recipient);
+    }
+
+    // 권한별 접근 검증 로직
+    private Recipient findRecipientByIdAndCareworker(Long recipientId, Long careworkerId) {
+        return recipientRepository.findByIdAndCareworkerId(recipientId, careworkerId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED));
+    }
+
+    private Recipient findRecipientByIdAndInstitution(Long recipientId, Long institutionId) {
+        return recipientRepository.findByIdAndInstitutionId(recipientId, institutionId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED));
     }
 
     public Recipient findRecipientById(Long recipientId) {
@@ -126,4 +186,3 @@ public class RecipientService {
         );
     }
 }
-

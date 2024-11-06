@@ -73,6 +73,32 @@ public class Recipient extends BaseEntity {
     }
 
 
+    public Recipient(RecipientRequestDTO dto, Careworker careworker) {
+        this.name = dto.getName();
+        this.birth = dto.getBirth();
+        this.gender = dto.getGender();
+        this.careLevel = dto.getCareLevel();
+        this.careNumber = dto.getCareNumber();
+        this.startDate = dto.getStartDate();
+        this.institution = careworker.getInstitution();
+        this.institutionNumber = careworker.getInstitution().getInstitutionNumber();
+        this.careworker = careworker;
+    }
+
+
+    public Recipient(RecipientRequestDTO dto, Institution institution, Careworker careworker) {
+        this.name = dto.getName();
+        this.birth = dto.getBirth();
+        this.gender = dto.getGender();
+        this.careLevel = dto.getCareLevel();
+        this.careNumber = dto.getCareNumber();
+        this.startDate = dto.getStartDate();
+        this.institution = institution;
+        this.institutionNumber = institution.getInstitutionNumber();
+        this.careworker = careworker;
+    }
+
+
     public void updateRecipient(RecipientRequestDTO recipientDTO) {
         this.name = recipientDTO.getName();
         this.birth = recipientDTO.getBirth();
@@ -80,9 +106,10 @@ public class Recipient extends BaseEntity {
         this.careLevel = recipientDTO.getCareLevel();
         this.careNumber = recipientDTO.getCareNumber();
         this.startDate = recipientDTO.getStartDate();
-        // this.institution = recipientDTO.getInstitution(); 요양기관이랑 요양보호사에 대해서는 돌봄대상자가 변경 못한다.
         this.institutionNumber = recipientDTO.getInstitutionNumber();
-        //this.careworker = careworker;
+        //요양원과 요양보호사의 변경은 돌봄대상자쪽 도메인에선 변경 안되는걸로 결정
     }
+
+
 
 }

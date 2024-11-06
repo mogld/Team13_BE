@@ -6,49 +6,53 @@ import dbdr.domain.recipient.service.RecipientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
-@Tag(name = "[관리자] 돌봄대상자 (Recipient)", description = "돌봄대상자 정보 조회, 수정, 삭제, 추가")
+@Tag(name = "[요양원] 돌봄대상자 관리", description = "요양원이 관리하는 모든 돌봄대상자 정보 조회, 추가, 수정, 삭제")
 @RestController
+@RequestMapping("/${spring.app.version}/institution/recipient")
 @RequiredArgsConstructor
-@RequestMapping("/${spring.app.version}/recipient")
-public class RecipientController {
+public class RecipientInstitutionController {
 
     private final RecipientService recipientService;
-
 
     @Value("${spring.app.version}")
     private String appVersion;
 
-
-    @Operation(summary = "전체 돌봄대상자 정보 조회", security = @SecurityRequirement(name = "JWT"))
+    @Operation(summary = "전체 돌봄대상자 조회 (페이징)", security = @SecurityRequirement(name = "JWT"))
     @GetMapping
-    public ResponseEntity<List<RecipientResponseDTO>> getAllRecipients() {
-        List<RecipientResponseDTO> recipients = recipientService.getAllRecipients();
+    public ResponseEntity<Page<RecipientResponseDTO>> getAllRecipients(
+            @RequestParam("institutionId") Long institutionId,
+            Pageable pageable) {
+        Page<RecipientResponseDTO> recipients = recipientService.getRecipientsByInstitution(institutionId, pageable);
         return ResponseEntity.ok(recipients);
     }
 
-    @Operation(summary = "돌봄대상자 한 사람의 정보 조회", security = @SecurityRequirement(name = "JWT"))
+    @Operation(summary = "돌봄대상자 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping("/{recipientId}")
-    public ResponseEntity<RecipientResponseDTO> getRecipientById(@PathVariable("recipientId") Long recipientId) {
-        RecipientResponseDTO recipient = recipientService.getRecipientById(recipientId);
+    public ResponseEntity<RecipientResponseDTO> getRecipientById(
+            @PathVariable("recipientId") Long recipientId,
+            @RequestParam("institutionId") Long institutionId) {
+        RecipientResponseDTO recipient = recipientService.getRecipientByInstitution(recipientId, institutionId);
         return ResponseEntity.ok(recipient);
     }
 
     @Operation(summary = "돌봄대상자 추가", security = @SecurityRequirement(name = "JWT"))
     @PostMapping
     public ResponseEntity<RecipientResponseDTO> createRecipient(
+            @RequestParam("institutionId") Long institutionId,
             @Valid @RequestBody RecipientRequestDTO recipientDTO) {
-        RecipientResponseDTO newRecipient = recipientService.createRecipient(recipientDTO);
+        RecipientResponseDTO newRecipient = recipientService.createRecipientForInstitution(recipientDTO, institutionId);
         return ResponseEntity.created(
-                        URI.create("/" + appVersion + "/recipient/" + newRecipient.getId()))
+                        URI.create("/" + appVersion + "/institution/recipient/" + newRecipient.getId()))
                 .body(newRecipient);
     }
 
@@ -56,11 +60,9 @@ public class RecipientController {
     @PutMapping("/{recipientId}")
     public ResponseEntity<RecipientResponseDTO> updateRecipient(
             @PathVariable("recipientId") Long recipientId,
-            @RequestParam(required = false) Long institutionId,
-            @RequestParam(required = false) Long careworkerId,
+            @RequestParam("institutionId") Long institutionId,
             @Valid @RequestBody RecipientRequestDTO recipientDTO) {
-
-        RecipientResponseDTO updatedRecipient = recipientService.updateRecipient(recipientId, recipientDTO,institutionId, careworkerId);
+        RecipientResponseDTO updatedRecipient = recipientService.updateRecipientForInstitution(recipientId, recipientDTO, institutionId);
         return ResponseEntity.ok(updatedRecipient);
     }
 
@@ -68,10 +70,8 @@ public class RecipientController {
     @DeleteMapping("/{recipientId}")
     public ResponseEntity<Void> deleteRecipient(
             @PathVariable("recipientId") Long recipientId,
-            @RequestParam(required = false) Long institutionId,
-            @RequestParam(required = false) Long careworkerId) {
-
-        recipientService.deleteRecipient(recipientId, institutionId, careworkerId);
+            @RequestParam("institutionId") Long institutionId) {
+        recipientService.deleteRecipientForInstitution(recipientId, institutionId);
         return ResponseEntity.noContent().build();
     }
 }

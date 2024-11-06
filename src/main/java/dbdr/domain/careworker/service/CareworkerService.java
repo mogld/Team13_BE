@@ -1,5 +1,7 @@
 package dbdr.domain.careworker.service;
 
+import dbdr.domain.careworker.dto.request.CareworkerUpdateRequestDTO;
+import dbdr.domain.careworker.dto.response.CareworkerMyPageResponseDTO;
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
 import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
@@ -9,9 +11,12 @@ import dbdr.domain.institution.service.InstitutionService;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,10 +28,23 @@ public class CareworkerService {
     private final InstitutionService institutionService;
 
     @Transactional(readOnly = true)
-    public List<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId) {
-        return careworkerRepository.findByInstitutionId(institutionId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId, Pageable pageable) {
+        Page<Careworker> results = careworkerRepository.findAllByInstitutionId(institutionId, pageable);
+        return results.map(this::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public CareworkerResponseDTO getCareworkerByInstitution(Long careworkerId, Long institutionId) {
+        institutionService.getInstitutionById(institutionId);
+
+        Careworker careworker = careworkerRepository.findById(careworkerId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
+
+        if (!careworker.getInstitution().getId().equals(institutionId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
+        return toResponseDTO(careworker);
     }
 
     @Transactional(readOnly = true)
@@ -41,6 +59,7 @@ public class CareworkerService {
         Careworker careworker = findCareworkerById(careworkerId);
         return toResponseDTO(careworker);
     }
+
 
     @Transactional
     public CareworkerResponseDTO createCareworker(CareworkerRequestDTO careworkerRequestDTO, Long institutionId) {
@@ -80,6 +99,24 @@ public class CareworkerService {
         careworkerRepository.delete(careworker);
     }
 
+    @Transactional(readOnly = true)
+    public CareworkerMyPageResponseDTO getMyPageInfo(Long careworkerId) {
+        Careworker careworker = findCareworkerById(careworkerId);
+        return toMyPageResponseDTO(careworker);
+    }
+
+    @Transactional
+    public CareworkerMyPageResponseDTO updateWorkingDaysAndAlertTime(Long careworkerId, CareworkerUpdateRequestDTO request) {
+        Careworker careworker = careworkerRepository.findById(careworkerId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
+
+        // 근무일과 알림 시간만 업데이트가능하도록.
+        careworker.setWorkingDays(request.getWorkingDays());
+        careworker.updateAlertTime(request.getAlertTime());
+
+        return toMyPageResponseDTO(careworker);
+    }
+
     private Careworker findCareworkerById(Long careworkerId) {
         return careworkerRepository.findById(careworkerId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
@@ -108,5 +145,16 @@ public class CareworkerService {
 
     public Careworker findByPhone(String phoneNumber) {
         return careworkerRepository.findByPhone(phoneNumber).orElse(null);
+    }
+
+    private CareworkerMyPageResponseDTO toMyPageResponseDTO(Careworker careworker) {
+        return new CareworkerMyPageResponseDTO(
+                careworker.getName(),
+                careworker.getPhone(),
+                careworker.getInstitution().getInstitutionName(),
+                careworker.getLoginId(),
+                careworker.getWorkingDays(),
+                careworker.getAlertTime()
+        );
     }
 }
