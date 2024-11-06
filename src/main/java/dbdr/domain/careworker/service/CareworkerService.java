@@ -111,8 +111,10 @@ public class CareworkerService {
                 .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
 
         // 근무일과 알림 시간만 업데이트가능하도록.
-        careworker.setWorkingDays(request.getWorkingDays());
+        careworker.updateWorkingDays(request.getWorkingDays());;
         careworker.updateAlertTime(request.getAlertTime());
+
+        careworkerRepository.save(careworker); //추가필요
 
         return toMyPageResponseDTO(careworker);
     }

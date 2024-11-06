@@ -1,9 +1,8 @@
 package dbdr.domain.careworker.entity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
+import java.util.Set;
 
 import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
@@ -38,14 +37,10 @@ public class Careworker extends BaseEntity {
     @JoinColumn(name = "institution_id")
     private Institution institution;
 
-    // 근무일 정보를 저장하는 필드로, 요일들을 문자열 리스트 형태로 저장합니다.
-    // ElementCollection 어노테이션을 사용하여 별도의 테이블에 매핑합니다.
+    // 근무일을 요일로 설정
     @ElementCollection(fetch = FetchType.LAZY)
-    private List<String> workingDays;
-
-    public void setWorkingDays(List<String> workingDays) {
-        this.workingDays = workingDays;
-    }
+    @Enumerated(EnumType.STRING)
+    private Set<DayOfWeek> workingDays;
 
     @Column(nullable = true)
     private String lineUserId;
@@ -80,4 +75,9 @@ public class Careworker extends BaseEntity {
     public void updateAlertTime(LocalTime alertTime) {
         this.alertTime = alertTime;
     }
+
+    public void updateWorkingDays(Set<DayOfWeek> workingDays) {
+        this.workingDays = workingDays;
+    }
+
 }

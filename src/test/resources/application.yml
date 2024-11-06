@@ -22,6 +22,7 @@ line:
     channel-token: "TEST"
 
 openai:
-  api-key: "abc001"
-  chat-completions: "chat_completions_value"
+  api-key: "aaaaaa"
+  model: "aa"
+  chat-completions: "aaa"
 
