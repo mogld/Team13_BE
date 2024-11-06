@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 
-@Tag(name = "[돌봄대상자] 요양보호사 권한", description = "요양보호사가 담당하는 돌봄대상자 정보 조회, 추가, 수정, 삭제")
+@Tag(name = "[요양보호사] 돌봄대상자 관리", description = "요양보호사가 담당하는 돌봄대상자 정보 조회, 추가, 수정, 삭제")
 @RestController
 @RequestMapping("/${spring.app.version}/careworker/recipient")
 @RequiredArgsConstructor

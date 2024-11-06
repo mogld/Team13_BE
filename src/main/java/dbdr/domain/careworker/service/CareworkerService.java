@@ -34,6 +34,20 @@ public class CareworkerService {
     }
 
     @Transactional(readOnly = true)
+    public CareworkerResponseDTO getCareworkerByInstitution(Long careworkerId, Long institutionId) {
+        institutionService.getInstitutionById(institutionId);
+
+        Careworker careworker = careworkerRepository.findById(careworkerId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
+
+        if (!careworker.getInstitution().getId().equals(institutionId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
+        return toResponseDTO(careworker);
+    }
+
+    @Transactional(readOnly = true)
     public Careworker getCareworkerById(Long careworkerId) {
         return careworkerRepository.findById(careworkerId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
@@ -93,7 +107,8 @@ public class CareworkerService {
 
     @Transactional
     public CareworkerMyPageResponseDTO updateWorkingDaysAndAlertTime(Long careworkerId, CareworkerUpdateRequestDTO request) {
-        Careworker careworker = findCareworkerById(careworkerId);
+        Careworker careworker = careworkerRepository.findById(careworkerId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
 
         // 근무일과 알림 시간만 업데이트가능하도록.
         careworker.setWorkingDays(request.getWorkingDays());

@@ -24,18 +24,60 @@ public class RecipientService {
     private final CareworkerService careworkerService;
     private final InstitutionService institutionService;
 
-    //요양보호사가 담당하는 모든 돌봄대상자 목록 조회
+    // 전체 돌봄대상자 목록 조회 (관리자용)
+    @Transactional(readOnly = true)
+    public Page<RecipientResponseDTO> getAllRecipients(Pageable pageable) {
+        return recipientRepository.findAll(pageable)
+                .map(this::toResponseDTO);
+    }
+
+    // 특정 돌봄대상자 조회 (관리자용)
+    @Transactional(readOnly = true)
+    public RecipientResponseDTO getRecipientById(Long recipientId) {
+        Recipient recipient = findRecipientById(recipientId);
+        return toResponseDTO(recipient);
+    }
+
+    // 새로운 돌봄대상자 추가 (관리자용)
+    @Transactional
+    public RecipientResponseDTO createRecipient(RecipientRequestDTO recipientDTO) {
+        ensureUniqueCareNumber(recipientDTO.getCareNumber());
+        Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
+        Institution institution = institutionService.getInstitutionById(recipientDTO.getInstitutionId());
+
+        Recipient recipient = new Recipient(recipientDTO, institution, careworker);
+        recipientRepository.save(recipient);
+        return toResponseDTO(recipient);
+    }
+
+    // 돌봄대상자 정보 수정 (관리자용)
+    @Transactional
+    public RecipientResponseDTO updateRecipient(Long recipientId, RecipientRequestDTO recipientDTO) {
+        Recipient recipient = findRecipientById(recipientId);
+        recipient.updateRecipient(recipientDTO);
+        return toResponseDTO(recipient);
+    }
+
+    // 돌봄대상자 삭제 (관리자용)
+    @Transactional
+    public void deleteRecipient(Long recipientId) {
+        Recipient recipient = findRecipientById(recipientId);
+        recipient.deactivate();
+        recipientRepository.delete(recipient);
+    }
+
+    //전체 돌봄대상자 목록 조회 (요양보호사용)
     @Transactional(readOnly = true)
     public Page<RecipientResponseDTO> getRecipientsByCareworker(Long careworkerId, Pageable pageable) {
         return recipientRepository.findByCareworkerId(careworkerId, pageable)
-                .map(this::toResponseDTO); // Page<Recipient> to Page<RecipientResponseDTO> 변환
+                .map(this::toResponseDTO);
     }
 
-    // 요양원이 관리하는 모든 돌봄대상자 목록 조회
+    //전체 돌봄대상자 목록 조회 (요양원용)
     @Transactional(readOnly = true)
     public Page<RecipientResponseDTO> getRecipientsByInstitution(Long institutionId, Pageable pageable) {
         return recipientRepository.findByInstitutionId(institutionId, pageable)
-                .map(this::toResponseDTO); // Page<Recipient> to Page<RecipientResponseDTO> 변환
+                .map(this::toResponseDTO);
     }
 
     //요양보호사가 담당하는 특정 돌봄대상자 정보 조회
@@ -82,7 +124,7 @@ public class RecipientService {
         return toResponseDTO(recipient);
     }
 
-
+    //요양원에 속한 돌봄대상자 정보 수정
     @Transactional
     public RecipientResponseDTO updateRecipientForInstitution(Long recipientId, RecipientRequestDTO recipientDTO, Long institutionId) {
         Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
@@ -91,17 +133,18 @@ public class RecipientService {
     }
 
     //요양보호사가 담당하는 돌봄대상자 삭제
-
     @Transactional
     public void deleteRecipientForCareworker(Long recipientId, Long careworkerId) {
         Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
+        recipient.deactivate();
         recipientRepository.delete(recipient);
     }
 
-    //요양원이 관리하는 돌봄대상자 삭제
+    //요양원에 속한 돌봄대상자 삭제
     @Transactional
     public void deleteRecipientForInstitution(Long recipientId, Long institutionId) {
         Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
+        recipient.deactivate();
         recipientRepository.delete(recipient);
     }
 
