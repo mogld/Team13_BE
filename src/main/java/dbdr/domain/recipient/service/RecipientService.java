@@ -11,10 +11,10 @@ import dbdr.domain.institution.service.InstitutionService;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +25,11 @@ public class RecipientService {
     private final InstitutionService institutionService;
 
     // 전체 돌봄대상자 목록 조회 (관리자용)
-    @Transactional(readOnly = true)
-    public Page<RecipientResponseDTO> getAllRecipients(Pageable pageable) {
-        return recipientRepository.findAll(pageable)
-                .map(this::toResponseDTO);
+    public List<RecipientResponseDTO> getAllRecipients() {
+        return recipientRepository.findAll()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     // 특정 돌봄대상자 조회 (관리자용)
@@ -68,16 +69,20 @@ public class RecipientService {
 
     //전체 돌봄대상자 목록 조회 (요양보호사용)
     @Transactional(readOnly = true)
-    public Page<RecipientResponseDTO> getRecipientsByCareworker(Long careworkerId, Pageable pageable) {
-        return recipientRepository.findByCareworkerId(careworkerId, pageable)
-                .map(this::toResponseDTO);
+    public List<RecipientResponseDTO> getRecipientsByCareworker(Long careworkerId) {
+        return recipientRepository.findByCareworkerId(careworkerId)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
+
     //전체 돌봄대상자 목록 조회 (요양원용)
-    @Transactional(readOnly = true)
-    public Page<RecipientResponseDTO> getRecipientsByInstitution(Long institutionId, Pageable pageable) {
-        return recipientRepository.findByInstitutionId(institutionId, pageable)
-                .map(this::toResponseDTO);
+    public List<RecipientResponseDTO> getRecipientsByInstitution(Long institutionId) {
+        return recipientRepository.findByInstitutionId(institutionId)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     //요양보호사가 담당하는 특정 돌봄대상자 정보 조회

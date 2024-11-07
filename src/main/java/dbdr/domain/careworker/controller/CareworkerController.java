@@ -4,6 +4,7 @@ import dbdr.domain.careworker.dto.request.CareworkerUpdateRequestDTO;
 import dbdr.domain.careworker.dto.response.CareworkerMyPageResponseDTO;
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.service.CareworkerService;
+import dbdr.global.util.api.ApiUtils;
 import dbdr.security.LoginCareworker;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,19 +34,19 @@ public class CareworkerController {
 
     @Operation(summary = "요양보호사 본인의 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping
-    public ResponseEntity<CareworkerMyPageResponseDTO> showCareworkerInfo(
+    public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponseDTO>> showCareworkerInfo(
             @Parameter(hidden = true) @LoginCareworker Careworker careworker) {
         log.info("Careworker Name: {}", careworker.getName());
         CareworkerMyPageResponseDTO response = careworkerService.getMyPageInfo(careworker.getId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     @Operation(summary = "요양보호사 본인의 근무일과 알림 시간 수정", security = @SecurityRequirement(name = "JWT"))
     @PutMapping
-    public ResponseEntity<CareworkerMyPageResponseDTO> updateCareworkerInfo(
+    public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponseDTO>> updateCareworkerInfo(
             @Parameter(hidden = true) @LoginCareworker Careworker careworker,
             @Valid @RequestBody CareworkerUpdateRequestDTO careworkerRequest) {
         CareworkerMyPageResponseDTO updatedResponse = careworkerService.updateWorkingDaysAndAlertTime(careworker.getId(), careworkerRequest);
-        return ResponseEntity.ok(updatedResponse);
+        return ResponseEntity.ok(ApiUtils.success(updatedResponse));
     }
 }

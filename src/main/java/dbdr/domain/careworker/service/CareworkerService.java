@@ -11,10 +11,10 @@ import dbdr.domain.institution.service.InstitutionService;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -25,9 +25,9 @@ public class CareworkerService {
     private final InstitutionService institutionService;
 
     @Transactional(readOnly = true)
-    public Page<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId, Pageable pageable) {
-        Page<Careworker> results = careworkerRepository.findAllByInstitutionId(institutionId, pageable);
-        return results.map(this::toResponseDTO);
+    public List<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId) {
+        List<Careworker> results = careworkerRepository.findAllByInstitutionId(institutionId);
+        return results.stream().map(this::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -56,6 +56,13 @@ public class CareworkerService {
         Careworker careworker = findCareworkerById(careworkerId);
         return toResponseDTO(careworker);
     }
+
+    @Transactional(readOnly = true)
+    public List<CareworkerResponseDTO> getAllCareworkers() {
+        List<Careworker> careworkers = careworkerRepository.findAll();
+        return careworkers.stream().map(this::toResponseDTO).toList();
+    }
+
 
 
     @Transactional
@@ -92,6 +99,13 @@ public class CareworkerService {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
+        careworker.deactivate();
+        careworkerRepository.delete(careworker);
+    }
+
+    @Transactional
+    public void deleteCareworkerByAdmin(Long careworkerId) {
+        Careworker careworker = findCareworkerById(careworkerId);
         careworker.deactivate();
         careworkerRepository.delete(careworker);
     }
