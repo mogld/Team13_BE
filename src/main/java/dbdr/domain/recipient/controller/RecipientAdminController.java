@@ -47,7 +47,7 @@ public class RecipientAdminController {
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponseDTO>> updateRecipient(
             @PathVariable("recipientId") Long recipientId,
             @Valid @RequestBody RecipientRequestDTO recipientDTO) {
-        RecipientResponseDTO updatedRecipient = recipientService.updateRecipient(recipientId, recipientDTO);
+        RecipientResponseDTO updatedRecipient = recipientService.updateRecipientForAdmin(recipientId, recipientDTO);
         return ResponseEntity.ok(ApiUtils.success(updatedRecipient));
     }
 

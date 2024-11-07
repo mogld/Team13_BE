@@ -3,6 +3,7 @@ package dbdr.domain.careworker.controller;
 import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
 import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
 import dbdr.domain.careworker.service.CareworkerService;
+import dbdr.domain.institution.service.InstitutionService;
 import dbdr.global.util.api.ApiUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,7 @@ import java.util.List;
 public class CareworkerAdminController {
 
     private final CareworkerService careworkerService;
+    private final InstitutionService institutionService;
 
     @Operation(summary = "전체 요양보호사 정보 조회")
     @GetMapping
@@ -47,14 +49,15 @@ public class CareworkerAdminController {
     }
 
 
-    @Operation(summary = "요양보호사 정보 수정")
+    @Operation(summary = "요양보호사 정보 수정 ")
     @PutMapping("/{careworkerId}")
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponseDTO>> updateCareworker(
             @PathVariable Long careworkerId,
             @Valid @RequestBody CareworkerRequestDTO careworkerDTO) {
-        CareworkerResponseDTO updatedCareworker = careworkerService.updateCareworker(careworkerId, careworkerDTO, careworkerDTO.getInstitutionId());
+        CareworkerResponseDTO updatedCareworker = careworkerService.updateCareworkerByAdmin(careworkerId, careworkerDTO);
         return ResponseEntity.ok(ApiUtils.success(updatedCareworker));
     }
+
 
     @Operation(summary = "요양보호사 삭제")
     @DeleteMapping("/{careworkerId}")

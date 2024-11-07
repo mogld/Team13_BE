@@ -92,6 +92,24 @@ public class CareworkerService {
     }
 
     @Transactional
+    public CareworkerResponseDTO updateCareworkerByAdmin(Long careworkerId, CareworkerRequestDTO careworkerDTO) {
+        Careworker careworker = findCareworkerById(careworkerId);
+
+
+        Institution institution = institutionService.getInstitutionById(careworkerDTO.getInstitutionId());
+        if (institution == null) {
+            throw new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND);
+        }
+
+        careworker.updateInstitution(institution);
+        careworker.updateCareworker(careworkerDTO);
+
+        return toResponseDTO(careworker);
+    }
+
+
+
+    @Transactional
     public void deleteCareworker(Long careworkerId, Long institutionId) {
         Careworker careworker = findCareworkerById(careworkerId);
 

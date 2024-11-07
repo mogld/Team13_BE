@@ -2,6 +2,7 @@ package dbdr.domain.recipient.entity;
 
 import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.careworker.entity.Careworker;
+import dbdr.domain.guardian.entity.Guardian;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.recipient.dto.request.RecipientRequestDTO;
 import jakarta.persistence.*;
@@ -51,6 +52,11 @@ public class Recipient extends BaseEntity {
     @JoinColumn(name = "careworker_id")
     private Careworker careworker;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guardian_id")
+    private Guardian guardian;
+
+
     @Builder
     public Recipient(String name,
                      LocalDate birth,
@@ -60,7 +66,8 @@ public class Recipient extends BaseEntity {
                      LocalDate startDate,
                      Institution institution,
                      Long institutionNumber,
-                     Careworker careworker) {
+                     Careworker careworker,
+                     Guardian guardian) {
         this.name = name;
         this.birth = birth;
         this.gender = gender;
@@ -70,6 +77,7 @@ public class Recipient extends BaseEntity {
         this.institution = institution;
         this.institutionNumber = institutionNumber;
         this.careworker = careworker;
+        this.guardian = guardian;
     }
 
 
@@ -106,9 +114,18 @@ public class Recipient extends BaseEntity {
         this.careLevel = recipientDTO.getCareLevel();
         this.careNumber = recipientDTO.getCareNumber();
         this.startDate = recipientDTO.getStartDate();
-        this.institutionNumber = recipientDTO.getInstitutionNumber();
-        //요양원과 요양보호사의 변경은 돌봄대상자쪽 도메인에선 변경 안되는걸로 결정
     }
+
+    public void updateRecipientForInstitution(Careworker careworker) {
+        this.careworker = careworker;
+    }//요양원용
+
+    public void updateRecipientForAdmin(RecipientRequestDTO recipientDTO, Institution institution, Careworker careworker) {
+        this.institution = institution;
+        this.institutionNumber = recipientDTO.getInstitutionNumber();
+        this.careworker = careworker;
+    } //관리자용
+
 
 
 

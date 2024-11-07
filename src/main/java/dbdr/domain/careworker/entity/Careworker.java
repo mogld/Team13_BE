@@ -61,7 +61,6 @@ public class Careworker extends BaseEntity {
     }
 
     public void updateCareworker(CareworkerRequestDTO careworkerDTO) {
-        //this.institutionId = careworkerDTO.getInstitutionId();
         this.name = careworkerDTO.getName();
         this.email = careworkerDTO.getEmail();
         this.phone = careworkerDTO.getPhone();
@@ -78,4 +77,9 @@ public class Careworker extends BaseEntity {
     public void updateAlertTime(LocalTime alertTime) {
         this.alertTime = alertTime;
     }
+
+    public void updateInstitution(Institution institution) {
+        this.institution = institution;
+    }
+
 }

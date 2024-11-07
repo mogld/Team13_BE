@@ -39,25 +39,48 @@ public class RecipientService {
         return toResponseDTO(recipient);
     }
 
-    // 새로운 돌봄대상자 추가 (관리자용)
+    //관리자용
     @Transactional
     public RecipientResponseDTO createRecipient(RecipientRequestDTO recipientDTO) {
         ensureUniqueCareNumber(recipientDTO.getCareNumber());
         Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
         Institution institution = institutionService.getInstitutionById(recipientDTO.getInstitutionId());
 
+        //  Careworker가 해당 Institution에 속하는지 확인
+        if (!careworker.getInstitution().getId().equals(institution.getId())) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
         Recipient recipient = new Recipient(recipientDTO, institution, careworker);
         recipientRepository.save(recipient);
         return toResponseDTO(recipient);
     }
 
-    // 돌봄대상자 정보 수정 (관리자용)
+    //관리자용
     @Transactional
-    public RecipientResponseDTO updateRecipient(Long recipientId, RecipientRequestDTO recipientDTO) {
+    public RecipientResponseDTO updateRecipientForAdmin(Long recipientId, RecipientRequestDTO recipientDTO) {
         Recipient recipient = findRecipientById(recipientId);
+        Institution institution = institutionService.getInstitutionById(recipientDTO.getInstitutionId());
+        if (institution == null) {
+            throw new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND);
+        }
+
+        Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
+        if (careworker == null) {
+            throw new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND);
+        }
+
+        // Careworker가 해당 Institution에 속하는지 확인
+        if (!careworker.getInstitution().getId().equals(institution.getId())) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+        //관리자는 요양원, 요양보호사 업데이트 가능
         recipient.updateRecipient(recipientDTO);
+        recipient.updateRecipientForAdmin(recipientDTO, institution, careworker);
+
         return toResponseDTO(recipient);
     }
+
 
     // 돌봄대상자 삭제 (관리자용)
     @Transactional
@@ -65,6 +88,22 @@ public class RecipientService {
         Recipient recipient = findRecipientById(recipientId);
         recipient.deactivate();
         recipientRepository.delete(recipient);
+    }
+
+    //보호자용
+    @Transactional(readOnly = true)
+    public List<RecipientResponseDTO> getAllRecipientsForGuardian(Long guardianId) {
+        return recipientRepository.findAllByGuardianId(guardianId)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+    //보호자용
+    @Transactional(readOnly = true)
+    public RecipientResponseDTO getRecipientForGuardian(Long guardianId, Long recipientId) {
+        return recipientRepository.findByIdAndGuardianId(recipientId, guardianId)
+                .map(this::toResponseDTO)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.RECIPIENT_NOT_FOUND));
     }
 
     //전체 돌봄대상자 목록 조회 (요양보호사용)
@@ -104,6 +143,11 @@ public class RecipientService {
     public RecipientResponseDTO createRecipientForCareworker(RecipientRequestDTO recipientDTO, Long careworkerId) {
         ensureUniqueCareNumber(recipientDTO.getCareNumber());
         Careworker careworker = careworkerService.getCareworkerById(careworkerId);
+
+        if (!careworker.getInstitution().getId().equals(recipientDTO.getInstitutionId())) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
         Recipient recipient = new Recipient(recipientDTO, careworker);
         recipientRepository.save(recipient);
         return toResponseDTO(recipient);
@@ -116,6 +160,10 @@ public class RecipientService {
         Institution institution = institutionService.getInstitutionById(institutionId);
         Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
 
+        if (!careworker.getInstitution().getId().equals(institution.getId())) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
         Recipient recipient = new Recipient(recipientDTO, institution, careworker);
         recipientRepository.save(recipient);
         return toResponseDTO(recipient);
@@ -124,16 +172,32 @@ public class RecipientService {
     //요양보호사가 담당하는 돌봄대상자 정보 수정
     @Transactional
     public RecipientResponseDTO updateRecipientForCareworker(Long recipientId, RecipientRequestDTO recipientDTO, Long careworkerId) {
+        Careworker careworker = careworkerService.getCareworkerById(careworkerId);
         Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
+
+        if (!careworker.getInstitution().getId().equals(recipient.getInstitution().getId())) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
         recipient.updateRecipient(recipientDTO);
         return toResponseDTO(recipient);
     }
 
-    //요양원에 속한 돌봄대상자 정보 수정
+    // 요양원에 속한 돌봄대상자 정보 수정
     @Transactional
     public RecipientResponseDTO updateRecipientForInstitution(Long recipientId, RecipientRequestDTO recipientDTO, Long institutionId) {
         Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
+        Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
+
+
+        if (!careworker.getInstitution().getId().equals(institutionId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
+        // 요양원은 본인 요양원에 속한 careworker 업데이트 가능
         recipient.updateRecipient(recipientDTO);
+        recipient.updateRecipientForInstitution(careworker);
+
         return toResponseDTO(recipient);
     }
 
@@ -187,7 +251,8 @@ public class RecipientService {
                 recipient.getInstitution().getInstitutionName(),
                 recipient.getInstitution().getInstitutionNumber(),
                 recipient.getInstitution().getId(),
-                recipient.getCareworker() != null ? recipient.getCareworker().getId() : null
+                recipient.getCareworker() != null ? recipient.getCareworker().getId() : null,
+                recipient.getGuardian() != null ? recipient.getGuardian().getId() : null
         );
     }
 }

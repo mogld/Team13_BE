@@ -44,9 +44,9 @@ public class Guardian extends BaseEntity {
     @Column(nullable = true)
     private LocalTime alertTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")
-    private Recipient recipient;
+    private Recipient recipient;*/
 
     @Builder
     public Guardian(String phone, String name) {
