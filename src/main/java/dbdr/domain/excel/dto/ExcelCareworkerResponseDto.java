@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class ExcelCareworkerResponseDto {
 
     private Long id;
-    private Long institutionId;
+    private Long institution;
     private String name;
     private String email;
     private String phone;

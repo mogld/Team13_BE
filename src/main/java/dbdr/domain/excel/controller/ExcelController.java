@@ -5,8 +5,10 @@ import dbdr.domain.excel.dto.GuardianFileUploadResponseDto;
 import dbdr.domain.excel.dto.RecipientFileUploadResponseDto;
 import dbdr.domain.excel.service.ExcelDownloadService;
 import dbdr.domain.excel.service.ExcelUploadService;
+import dbdr.domain.institution.entity.Institution;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
+import dbdr.security.LoginInstitution;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -70,25 +72,31 @@ public class ExcelController {
 
     @Operation(summary = "요양관리사 엑셀 업로드")
     @PostMapping("/careworker/upload")
-    public ResponseEntity<CareworkerFileUploadResponseDto> uploadCareworkerData(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<CareworkerFileUploadResponseDto> uploadCareworkerData(
+            @LoginInstitution Institution institution,
+            @RequestParam("file") MultipartFile file) {
         validateFile(file);
-        CareworkerFileUploadResponseDto result = excelUploadService.uploadCareworkerExcel(file);
+        CareworkerFileUploadResponseDto result = excelUploadService.uploadCareworkerExcel(file, institution.getId());
         return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "보호자 엑셀 업로드")
     @PostMapping("/guardian/upload")
-    public ResponseEntity<GuardianFileUploadResponseDto> uploadGuardianData(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<GuardianFileUploadResponseDto> uploadGuardianData(
+            @LoginInstitution Institution institution,
+            @RequestParam("file") MultipartFile file) {
         validateFile(file);
-        GuardianFileUploadResponseDto result = excelUploadService.uploadGuardianExcel(file);
+        GuardianFileUploadResponseDto result = excelUploadService.uploadGuardianExcel(file, institution.getId());
         return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "돌봄대상자 엑셀 업로드")
     @PostMapping("/recipient/upload")
-    public ResponseEntity<RecipientFileUploadResponseDto> uploadRecipientData(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<RecipientFileUploadResponseDto> uploadRecipientData(
+            @LoginInstitution Institution institution,
+            @RequestParam("file") MultipartFile file) {
         validateFile(file);
-        RecipientFileUploadResponseDto result = excelUploadService.uploadRecipientExcel(file);
+        RecipientFileUploadResponseDto result = excelUploadService.uploadRecipientExcel(file, institution.getId());
         return ResponseEntity.ok(result);
     }
 }

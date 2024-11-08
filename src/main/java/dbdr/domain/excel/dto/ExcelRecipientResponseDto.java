@@ -18,5 +18,7 @@ public class ExcelRecipientResponseDto {
     private String careLevel;
     private String careNumber;
     private LocalDate startDate;
-    private String institution;
+    private Long institution;
+    private Long careworker;
+    private Long guardian;
 }

@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ExcelGuardianResponseDto {
 
+    private Long id;
     private String name;
     private String phone;
+    private Long institution;
 
 }
