@@ -1,6 +1,5 @@
 package dbdr.domain.careworker.dto.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,7 +9,7 @@ import java.util.Set;
 
 @Getter
 @AllArgsConstructor
-public class CareworkerMyPageResponseDTO {
+public class CareworkerMyPageResponse {
 
     private String name;
     private String phone;

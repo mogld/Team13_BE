@@ -1,9 +1,12 @@
 package dbdr.security.model;
 
+import static dbdr.global.exception.ApplicationError.REFRESH_TOKEN_EXPIRED;
+import static dbdr.global.exception.ApplicationError.TOKEN_EXPIRED;
 import static dbdr.global.util.api.JwtUtils.ACCESS_TOKEN_EXPIRATION_TIME;
 import static dbdr.global.util.api.JwtUtils.REFRESH_TOKEN_EXPIRATION_TIME;
 import static dbdr.global.util.api.JwtUtils.TOKEN_PREFIX;
 
+import dbdr.global.exception.ApplicationException;
 import dbdr.global.util.api.JwtUtils;
 import dbdr.security.dto.TokenDTO;
 import dbdr.security.service.BaseUserDetailsService;
