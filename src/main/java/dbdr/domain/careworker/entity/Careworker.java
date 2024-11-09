@@ -60,10 +60,10 @@ public class Careworker extends BaseEntity {
         this.alertTime = LocalTime.of(17, 0); // 오후 5시로 초기화
     }
 
-    public void updateCareworker(CareworkerRequestDTO careworkerDTO) {
-        this.name = careworkerDTO.getName();
-        this.email = careworkerDTO.getEmail();
-        this.phone = careworkerDTO.getPhone();
+    public void updateCareworker(Careworker careworker) {
+        this.name = careworker.getName();
+        this.email = careworker.getEmail();
+        this.phone = careworker.getPhone();
     }
 
     public void updateLineUserId(String lineUserId) {

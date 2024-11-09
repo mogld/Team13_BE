@@ -117,7 +117,7 @@ public class TestHelperFactory {
         }
 
         for (CareworkerRequestDTO careworkerRequestDTO : careworkers) {
-            careworkerService.createCareworker(careworkerRequestDTO, 1L);
+            careworkerService.createCareworker(careworkerRequestDTO);
         }
 
         for (GuardianRequest guardianRequest : guardians) {

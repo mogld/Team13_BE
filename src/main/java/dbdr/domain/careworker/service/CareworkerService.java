@@ -1,5 +1,6 @@
 package dbdr.domain.careworker.service;
 
+import dbdr.domain.careworker.dto.CareworkerMapper;
 import dbdr.domain.careworker.dto.request.CareworkerUpdateRequestDTO;
 import dbdr.domain.careworker.dto.response.CareworkerMyPageResponseDTO;
 import dbdr.domain.careworker.entity.Careworker;
@@ -23,11 +24,12 @@ public class CareworkerService {
 
     private final CareworkerRepository careworkerRepository;
     private final InstitutionService institutionService;
+    private final CareworkerMapper careworkerMapper;
 
     @Transactional(readOnly = true)
     public List<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId) {
         List<Careworker> results = careworkerRepository.findAllByInstitutionId(institutionId);
-        return results.stream().map(this::toResponseDTO).toList();
+        return results.stream().map(careworkerMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +43,7 @@ public class CareworkerService {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
-        return toResponseDTO(careworker);
+        return careworkerMapper.toResponse(careworker);
     }
 
     @Transactional(readOnly = true)
@@ -54,57 +56,54 @@ public class CareworkerService {
     @Transactional(readOnly = true)
     public CareworkerResponseDTO getCareworkerResponseById(Long careworkerId) {
         Careworker careworker = findCareworkerById(careworkerId);
-        return toResponseDTO(careworker);
+        return careworkerMapper.toResponse(careworker);
     }
 
     @Transactional(readOnly = true)
     public List<CareworkerResponseDTO> getAllCareworkers() {
         List<Careworker> careworkers = careworkerRepository.findAll();
-        return careworkers.stream().map(this::toResponseDTO).toList();
+        return careworkers.stream().map(careworkerMapper::toResponse).toList();
     }
 
 
 
     @Transactional
-    public CareworkerResponseDTO createCareworker(CareworkerRequestDTO careworkerRequestDTO, Long institutionId) {
+    public CareworkerResponseDTO createCareworker(CareworkerRequestDTO careworkerRequestDTO) {
         ensureUniqueEmail(careworkerRequestDTO.getEmail());
         ensureUniquePhone(careworkerRequestDTO.getPhone());
 
-        Institution institution = institutionService.getInstitutionById(institutionId);
-        Careworker careworker = new Careworker(institution, careworkerRequestDTO.getName(),
-                careworkerRequestDTO.getEmail(), careworkerRequestDTO.getPhone());
+        Careworker careworker = careworkerMapper.toEntity(careworkerRequestDTO);
 
         careworkerRepository.save(careworker);
-        return toResponseDTO(careworker);
+        return careworkerMapper.toResponse(careworker);
     }
 
     @Transactional
-    public CareworkerResponseDTO updateCareworker(Long careworkerId, CareworkerRequestDTO careworkerDTO, Long institutionId) {
+    public CareworkerResponseDTO updateCareworker(Long careworkerId, CareworkerRequestDTO request) {
         Careworker careworker = findCareworkerById(careworkerId);
 
-        Institution institution = institutionService.getInstitutionById(institutionId);
-        if (!careworker.getInstitution().equals(institution)) {
+        /*if (!careworker.getInstitution().equals(institution)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+        }*/
 
-        careworker.updateCareworker(careworkerDTO);
-        return toResponseDTO(careworker);
+        careworker.updateCareworker(careworkerMapper.toEntity(request));
+        return careworkerMapper.toResponse(careworker);
     }
 
     @Transactional
-    public CareworkerResponseDTO updateCareworkerByAdmin(Long careworkerId, CareworkerRequestDTO careworkerDTO) {
+    public CareworkerResponseDTO updateCareworkerByAdmin(Long careworkerId, CareworkerRequestDTO request) {
         Careworker careworker = findCareworkerById(careworkerId);
 
 
-        Institution institution = institutionService.getInstitutionById(careworkerDTO.getInstitutionId());
-        if (institution == null) {
+        Institution institution = institutionService.getInstitutionById(request.getInstitutionId());
+        /*if (institution == null) {
             throw new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND);
-        }
+        }*/
 
         careworker.updateInstitution(institution);
-        careworker.updateCareworker(careworkerDTO);
+        careworker.updateCareworker(careworkerMapper.toEntity(request));
 
-        return toResponseDTO(careworker);
+        return careworkerMapper.toResponse(careworker);
     }
 
 
@@ -117,14 +116,13 @@ public class CareworkerService {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
-        careworker.deactivate();
+
         careworkerRepository.delete(careworker);
     }
 
     @Transactional
     public void deleteCareworkerByAdmin(Long careworkerId) {
         Careworker careworker = findCareworkerById(careworkerId);
-        careworker.deactivate();
         careworkerRepository.delete(careworker);
     }
 
@@ -163,10 +161,10 @@ public class CareworkerService {
         }
     }
 
-    private CareworkerResponseDTO toResponseDTO(Careworker careworker) {
+    /*private CareworkerResponseDTO toResponseDTO(Careworker careworker) {
         return new CareworkerResponseDTO(careworker.getId(), careworker.getInstitution().getId(),
                 careworker.getName(), careworker.getEmail(), careworker.getPhone());
-    }
+    }*/
 
     public Careworker findByLineUserId(String userId) {
         return careworkerRepository.findByLineUserId(userId).orElse(null);

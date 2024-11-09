@@ -48,7 +48,7 @@ public class CareworkerInstitutionController {
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponseDTO>> createCareworker(
             @LoginInstitution Institution institution,
             @Valid @RequestBody CareworkerRequestDTO careworkerDTO) {
-        CareworkerResponseDTO newCareworker = careworkerService.createCareworker(careworkerDTO, institution.getId());
+        CareworkerResponseDTO newCareworker = careworkerService.createCareworker(careworkerDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiUtils.success(newCareworker));
 
     }
@@ -60,7 +60,7 @@ public class CareworkerInstitutionController {
             @PathVariable Long careworkerId,
             @LoginInstitution Institution institution,
             @RequestBody CareworkerRequestDTO careworkerDTO) {
-        CareworkerResponseDTO updatedCareworker = careworkerService.updateCareworker(careworkerId, careworkerDTO, institution.getId());
+        CareworkerResponseDTO updatedCareworker = careworkerService.updateCareworker(careworkerId, careworkerDTO);
         return ResponseEntity.ok(ApiUtils.success(updatedCareworker));
     }
 
