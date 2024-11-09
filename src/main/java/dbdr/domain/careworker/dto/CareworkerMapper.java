@@ -1,7 +1,7 @@
 package dbdr.domain.careworker.dto;
 
-import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
-import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
+import dbdr.domain.careworker.dto.request.CareworkerRequest;
+import dbdr.domain.careworker.dto.response.CareworkerResponse;
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.institution.service.InstitutionService;
@@ -18,10 +18,10 @@ public abstract class CareworkerMapper {
     @Mappings({
             @Mapping(target = "institutionId", source = "institution.id"),
             @Mapping(target = "id", source = "id")})
-    public abstract CareworkerResponseDTO toResponse(Careworker careworker);
+    public abstract CareworkerResponse toResponse(Careworker careworker);
 
     @Mapping(target = "institution", source = "institutionId")
-    public abstract Careworker toEntity(CareworkerRequestDTO request);
+    public abstract Careworker toEntity(CareworkerRequest request);
 
     protected Institution mapInstitution(Long institutionId) {
         return institutionService.getInstitutionById(institutionId);

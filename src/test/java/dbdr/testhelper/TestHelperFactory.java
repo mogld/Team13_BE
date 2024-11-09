@@ -4,7 +4,7 @@ import com.linecorp.bot.client.LineMessagingClient;
 import dbdr.domain.admin.entity.Admin;
 import dbdr.domain.admin.repository.AdminRepository;
 import dbdr.domain.admin.service.AdminService;
-import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
+import dbdr.domain.careworker.dto.request.CareworkerRequest;
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.domain.careworker.service.CareworkerService;
@@ -85,7 +85,7 @@ public class TestHelperFactory {
     private TestHelper testHelper;
 
     private List<GuardianRequest> guardians = new ArrayList<>();
-    private List<CareworkerRequestDTO> careworkers = new ArrayList<>();
+    private List<CareworkerRequest> careworkers = new ArrayList<>();
     private List<InstitutionRequest> institutions = new ArrayList<>();
     private List<RecipientRequestDTO> recipients = new ArrayList<>();
     private List<Chart> charts = new ArrayList<>();
@@ -116,8 +116,8 @@ public class TestHelperFactory {
             chartRepository.save(chart);
         }
 
-        for (CareworkerRequestDTO careworkerRequestDTO : careworkers) {
-            careworkerService.createCareworker(careworkerRequestDTO);
+        for (CareworkerRequest careworkerRequest : careworkers) {
+            careworkerService.createCareworker(careworkerRequest);
         }
 
         for (GuardianRequest guardianRequest : guardians) {
@@ -132,8 +132,8 @@ public class TestHelperFactory {
     }
 
     public TestHelperFactory addCareworker(Careworker careworker) {
-        CareworkerRequestDTO careworkerRequestDTO = convertCareworker(careworker);
-        careworkers.add(careworkerRequestDTO);
+        CareworkerRequest careworkerRequest = convertCareworker(careworker);
+        careworkers.add(careworkerRequest);
         return this;
     }
 
@@ -168,8 +168,8 @@ public class TestHelperFactory {
             guardian.getLoginPassword());
     }
 
-    private CareworkerRequestDTO convertCareworker(Careworker careworker) {
-        return new CareworkerRequestDTO();
+    private CareworkerRequest convertCareworker(Careworker careworker) {
+        return new CareworkerRequest();
     }
 
     private InstitutionRequest convertInstitution(Institution institution) {

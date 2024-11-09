@@ -1,8 +1,8 @@
 package dbdr.careworker;
 
 import dbdr.domain.careworker.dto.CareworkerMapper;
-import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
-import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
+import dbdr.domain.careworker.dto.request.CareworkerRequest;
+import dbdr.domain.careworker.dto.response.CareworkerResponse;
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.institution.service.InstitutionService;
@@ -56,7 +56,7 @@ public class CareworkerMapperTest {
         setId(careworker, 1L);
 
         // When
-        CareworkerResponseDTO responseDTO = mapper.toResponse(careworker);
+        CareworkerResponse responseDTO = mapper.toResponse(careworker);
 
         // Then
         assertEquals(careworker.getId(), responseDTO.getId());
@@ -69,7 +69,7 @@ public class CareworkerMapperTest {
     @Test
     void testToEntity() {
         // Given
-        CareworkerRequestDTO requestDTO = new CareworkerRequestDTO(
+        CareworkerRequest requestDTO = new CareworkerRequest(
                 1L,
                 "John Doe",
                 "johndoe@example.com",

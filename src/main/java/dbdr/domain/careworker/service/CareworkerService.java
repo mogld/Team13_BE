@@ -1,11 +1,11 @@
 package dbdr.domain.careworker.service;
 
 import dbdr.domain.careworker.dto.CareworkerMapper;
-import dbdr.domain.careworker.dto.request.CareworkerUpdateRequestDTO;
-import dbdr.domain.careworker.dto.response.CareworkerMyPageResponseDTO;
+import dbdr.domain.careworker.dto.request.CareworkerUpdateRequest;
+import dbdr.domain.careworker.dto.response.CareworkerMyPageResponse;
 import dbdr.domain.careworker.entity.Careworker;
-import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
-import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
+import dbdr.domain.careworker.dto.request.CareworkerRequest;
+import dbdr.domain.careworker.dto.response.CareworkerResponse;
 import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.institution.service.InstitutionService;
@@ -27,13 +27,13 @@ public class CareworkerService {
     private final CareworkerMapper careworkerMapper;
 
     @Transactional(readOnly = true)
-    public List<CareworkerResponseDTO> getCareworkersByInstitution(Long institutionId) {
+    public List<CareworkerResponse> getCareworkersByInstitution(Long institutionId) {
         List<Careworker> results = careworkerRepository.findAllByInstitutionId(institutionId);
         return results.stream().map(careworkerMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
-    public CareworkerResponseDTO getCareworkerByInstitution(Long careworkerId, Long institutionId) {
+    public CareworkerResponse getCareworkerByInstitution(Long careworkerId, Long institutionId) {
         institutionService.getInstitutionById(institutionId);
 
         Careworker careworker = careworkerRepository.findById(careworkerId)
@@ -54,13 +54,13 @@ public class CareworkerService {
 
 
     @Transactional(readOnly = true)
-    public CareworkerResponseDTO getCareworkerResponseById(Long careworkerId) {
+    public CareworkerResponse getCareworkerResponseById(Long careworkerId) {
         Careworker careworker = findCareworkerById(careworkerId);
         return careworkerMapper.toResponse(careworker);
     }
 
     @Transactional(readOnly = true)
-    public List<CareworkerResponseDTO> getAllCareworkers() {
+    public List<CareworkerResponse> getAllCareworkers() {
         List<Careworker> careworkers = careworkerRepository.findAll();
         return careworkers.stream().map(careworkerMapper::toResponse).toList();
     }
@@ -68,7 +68,7 @@ public class CareworkerService {
 
 
     @Transactional
-    public CareworkerResponseDTO createCareworker(CareworkerRequestDTO careworkerRequestDTO) {
+    public CareworkerResponse createCareworker(CareworkerRequest careworkerRequestDTO) {
         ensureUniqueEmail(careworkerRequestDTO.getEmail());
         ensureUniquePhone(careworkerRequestDTO.getPhone());
 
@@ -79,7 +79,7 @@ public class CareworkerService {
     }
 
     @Transactional
-    public CareworkerResponseDTO updateCareworker(Long careworkerId, CareworkerRequestDTO request) {
+    public CareworkerResponse updateCareworker(Long careworkerId, CareworkerRequest request) {
         Careworker careworker = findCareworkerById(careworkerId);
 
         /*if (!careworker.getInstitution().equals(institution)) {
@@ -91,7 +91,7 @@ public class CareworkerService {
     }
 
     @Transactional
-    public CareworkerResponseDTO updateCareworkerByAdmin(Long careworkerId, CareworkerRequestDTO request) {
+    public CareworkerResponse updateCareworkerByAdmin(Long careworkerId, CareworkerRequest request) {
         Careworker careworker = findCareworkerById(careworkerId);
 
 
@@ -127,13 +127,13 @@ public class CareworkerService {
     }
 
     @Transactional(readOnly = true)
-    public CareworkerMyPageResponseDTO getMyPageInfo(Long careworkerId) {
+    public CareworkerMyPageResponse getMyPageInfo(Long careworkerId) {
         Careworker careworker = findCareworkerById(careworkerId);
         return toMyPageResponseDTO(careworker);
     }
 
     @Transactional
-    public CareworkerMyPageResponseDTO updateWorkingDaysAndAlertTime(Long careworkerId, CareworkerUpdateRequestDTO request) {
+    public CareworkerMyPageResponse updateWorkingDaysAndAlertTime(Long careworkerId, CareworkerUpdateRequest request) {
         Careworker careworker = careworkerRepository.findById(careworkerId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
 
@@ -174,8 +174,8 @@ public class CareworkerService {
         return careworkerRepository.findByPhone(phoneNumber).orElse(null);
     }
 
-    private CareworkerMyPageResponseDTO toMyPageResponseDTO(Careworker careworker) {
-        return new CareworkerMyPageResponseDTO(
+    private CareworkerMyPageResponse toMyPageResponseDTO(Careworker careworker) {
+        return new CareworkerMyPageResponse(
                 careworker.getName(),
                 careworker.getPhone(),
                 careworker.getInstitution().getInstitutionName(),

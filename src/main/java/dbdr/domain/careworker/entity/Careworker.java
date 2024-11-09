@@ -5,7 +5,6 @@ import java.time.LocalTime;
 import java.util.Set;
 
 import dbdr.domain.core.base.entity.BaseEntity;
-import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
 import dbdr.domain.institution.entity.Institution;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
