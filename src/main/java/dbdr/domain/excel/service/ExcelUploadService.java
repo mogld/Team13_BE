@@ -11,9 +11,11 @@ import dbdr.domain.recipient.entity.Recipient;
 import dbdr.domain.recipient.repository.RecipientRepository;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
+import dbdr.security.model.BaseUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,34 +35,55 @@ public class ExcelUploadService {
     private final InstitutionRepository institutionRepository;
 
     @Transactional
-    public CareworkerFileUploadResponse uploadCareworkerExcel(MultipartFile file, Long institutionId) {
+    public CareworkerFileUploadResponse uploadCareworkerExcel(MultipartFile file) {
+        BaseUserDetails userDetails = (BaseUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Long institutionId = userDetails.getInstitutionId();
+
+        Institution institution = institutionRepository.findById(institutionId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
+
         Set<String> seenPhones = new HashSet<>();
         List<ExcelCareworkerResponse> uploaded = new ArrayList<>();
         List<ExcelCareworkerResponse> failed = new ArrayList<>();
 
-        processExcelFile(file, (row) -> processCareworkerRow(row, uploaded, failed, seenPhones, institutionId));
+        processExcelFile(file, (row) -> processCareworkerRow(row, uploaded, failed, seenPhones, institution));
 
         return new CareworkerFileUploadResponse(file.getOriginalFilename(), uploaded, failed);
     }
 
     @Transactional
-    public GuardianFileUploadResponse uploadGuardianExcel(MultipartFile file, Long institutionId) {
+    public GuardianFileUploadResponse uploadGuardianExcel(MultipartFile file) {
+        BaseUserDetails userDetails = (BaseUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Long institutionId = userDetails.getInstitutionId();
+
+        Institution institution = institutionRepository.findById(institutionId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
+
         Set<String> seenPhones = new HashSet<>();
         List<ExcelGuardianResponse> uploaded = new ArrayList<>();
         List<ExcelGuardianResponse> failed = new ArrayList<>();
 
-        processExcelFile(file, (row) -> processGuardianRow(row, uploaded, failed, seenPhones, institutionId));
+        processExcelFile(file, (row) -> processGuardianRow(row, uploaded, failed, seenPhones, institution));
 
         return new GuardianFileUploadResponse(file.getOriginalFilename(), uploaded, failed);
     }
 
     @Transactional
-    public RecipientFileUploadResponse uploadRecipientExcel(MultipartFile file, Long institutionId) {
+    public RecipientFileUploadResponse uploadRecipientExcel(MultipartFile file) {
+        BaseUserDetails userDetails = (BaseUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        Long institutionId = userDetails.getInstitutionId();
+
+        Institution institution = institutionRepository.findById(institutionId)
+                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
+
         Set<String> seenCareNumbers = new HashSet<>();
         List<ExcelRecipientResponse> uploaded = new ArrayList<>();
         List<ExcelRecipientResponse> failed = new ArrayList<>();
 
-        processExcelFile(file, (row) -> processRecipientRow(row, uploaded, failed, seenCareNumbers, institutionId));
+        processExcelFile(file, (row) -> processRecipientRow(row, uploaded, failed, seenCareNumbers, institution));
 
         return new RecipientFileUploadResponse(file.getOriginalFilename(), uploaded, failed);
     }
@@ -78,23 +101,22 @@ public class ExcelUploadService {
     }
 
     private void processCareworkerRow(Row row, List<ExcelCareworkerResponse> successList,
-                                      List<ExcelCareworkerResponse> failedList, Set<String> seenPhones, Long institutionId) {
-        Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(0)));
+                                      List<ExcelCareworkerResponse> failedList, Set<String> seenPhones, Institution institution) {
+        /*Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(0)));
 
         if (!rowInstitutionId.equals(institutionId)) { // 로그인한 요양원 ID 일치 여부 확인
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+        }*/
 
-        String name = getCellValue(row.getCell(1));
-        String email = getCellValue(row.getCell(2));
-        String phone = getCellValue(row.getCell(3));
+        String name = getCellValue(row.getCell(0));
+        String email = getCellValue(row.getCell(1));
+        String phone = getCellValue(row.getCell(2));
 
-        Institution institution = institutionRepository.findById(institutionId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND)); //로그인객체받아온후에 없어도되는 코드이려나..?
 
         try {
             checkDuplicate(seenPhones, phone, ApplicationError.DUPLICATE_PHONE);
             validatePhone(phone, careworkerRepository.existsByPhone(phone));
+            validateEmail(email, careworkerRepository.existsByEmail(email));
             seenPhones.add(phone);
 
             Careworker careworker = Careworker.builder()
@@ -105,24 +127,22 @@ public class ExcelUploadService {
                     .build();
             careworkerRepository.save(careworker);
 
-            successList.add(new ExcelCareworkerResponse(careworker.getId(), rowInstitutionId, name, email, phone));
+            successList.add(new ExcelCareworkerResponse(careworker.getId(), institution.getId(), name, email, phone));
         } catch (ApplicationException e) {
-            failedList.add(new ExcelCareworkerResponse(null, rowInstitutionId, name, email, phone));
+            failedList.add(new ExcelCareworkerResponse(null, institution.getId(), name, email, phone));
         }
     }
 
     private void processGuardianRow(Row row, List<ExcelGuardianResponse> successList,
-                                    List<ExcelGuardianResponse> failedList, Set<String> seenPhones, Long institutionId) {
+                                    List<ExcelGuardianResponse> failedList, Set<String> seenPhones, Institution institution) {
         String name = getCellValue(row.getCell(0));
         String phone = getCellValue(row.getCell(1));
-        Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(2)));
+        //Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(2)));
 
-        if (!rowInstitutionId.equals(institutionId)) {
+        /*if (!rowInstitutionId.equals(institutionId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+        }*/
 
-        Institution institution = institutionRepository.findById(institutionId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
 
         try {
             checkDuplicate(seenPhones, phone, ApplicationError.DUPLICATE_PHONE);
@@ -136,30 +156,28 @@ public class ExcelUploadService {
                     .build();
             guardianRepository.save(guardian);
 
-            successList.add(new ExcelGuardianResponse(guardian.getId(), name, phone, rowInstitutionId));
+            successList.add(new ExcelGuardianResponse(guardian.getId(), name, phone, institution.getId()));
         } catch (ApplicationException e) {
-            failedList.add(new ExcelGuardianResponse(null,  name, phone, rowInstitutionId));
+            failedList.add(new ExcelGuardianResponse(null,  name, phone, institution.getId()));
         }
     }
 
     private void processRecipientRow(Row row, List<ExcelRecipientResponse> successList,
-                                     List<ExcelRecipientResponse> failedList, Set<String> seenCareNumbers, Long institutionId) {
+                                     List<ExcelRecipientResponse> failedList, Set<String> seenCareNumbers, Institution institution) {
         String name = getCellValue(row.getCell(0));
         String birth = getCellValue(row.getCell(1));
         String gender = getCellValue(row.getCell(2));
         String careLevel = getCellValue(row.getCell(3));
         String careNumber = getCellValue(row.getCell(4));
         String startDate = getCellValue(row.getCell(5));
-        Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(6)));
-        Long careworkerId = Long.valueOf(getCellValue(row.getCell(7)));
-        Long guardianId = Long.valueOf(getCellValue(row.getCell(8)));
+        //Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(6)));
+        Long careworkerId = Long.valueOf(getCellValue(row.getCell(6)));
+        Long guardianId = Long.valueOf(getCellValue(row.getCell(7)));
 
-        if (!rowInstitutionId.equals(institutionId)) {
+        /*if (!rowInstitutionId.equals(institutionId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+        }*/
 
-        Institution institution = institutionRepository.findById(institutionId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
 
         Careworker careworker = careworkerRepository.findById(careworkerId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
@@ -205,6 +223,12 @@ public class ExcelUploadService {
         }
         if (exists) {
             throw new ApplicationException(ApplicationError.DUPLICATE_PHONE);
+        }
+    }
+
+    private void validateEmail(String email, boolean exists) {
+        if (exists) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_EMAIL);
         }
     }
 
