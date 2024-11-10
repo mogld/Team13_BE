@@ -64,6 +64,7 @@ public class RecipientService {
     //관리자용
     @Transactional
     public RecipientResponse updateRecipientForAdmin(Long recipientId, RecipientRequest recipientDTO) {
+
         Recipient recipient = findRecipientById(recipientId);
         Institution institution = institutionService.getInstitutionById(recipientDTO.getInstitutionId());
         if (institution == null) {
@@ -244,6 +245,13 @@ public class RecipientService {
             throw new ApplicationException(ApplicationError.DUPLICATE_CARE_NUMBER);
         }
     }
+
+    private void ensureUniqueCareNumberForUpdate(String careNumber, Long recipientId) {
+        if (recipientRepository.existsByCareNumberAndIdNot(careNumber, recipientId)) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_CARE_NUMBER);
+        }
+    }
+
 
     private RecipientResponse toResponse(Recipient recipient) {
         return new RecipientResponse(

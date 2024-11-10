@@ -16,6 +16,8 @@ public interface RecipientRepository extends JpaRepository<Recipient, Long> {
 
     List<Recipient> findAllByGuardianId(Long guardianId);
 
+    boolean existsByCareNumberAndIdNot(String careNumber, Long id);
+
     Optional<Recipient> findByIdAndCareworkerId(Long recipientId, Long careworkerId);
 
     Optional<Recipient> findByIdAndInstitutionId(Long recipientId, Long institutionId);

@@ -1,9 +1,11 @@
 package dbdr.domain.careworker.dto.request;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -11,11 +13,13 @@ import java.util.Set;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CareworkerUpdateRequest {
 
     @NotNull(message = "근무일은 필수 항목입니다.")
     private Set<DayOfWeek> workingDays;
 
     @NotNull(message = "알림 시간은 필수 항목입니다.")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime alertTime;
 }

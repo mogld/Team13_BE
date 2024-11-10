@@ -1,8 +1,11 @@
 package dbdr.security.model;
 
+import dbdr.domain.careworker.entity.Careworker;
+import dbdr.domain.guardian.entity.Guardian;
 import dbdr.domain.guardian.repository.GuardianRepository;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
+import dbdr.security.LoginCareworker;
 import dbdr.security.LoginGuardian;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -23,7 +26,8 @@ public class LoginGuardianArgumentResolver implements HandlerMethodArgumentResol
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(LoginGuardian.class);
+        return parameter.getParameterAnnotation(LoginGuardian.class) != null &&
+                Guardian.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override

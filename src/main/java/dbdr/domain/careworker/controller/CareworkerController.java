@@ -6,6 +6,9 @@ import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.service.CareworkerService;
 import dbdr.global.util.api.ApiUtils;
 import dbdr.security.LoginCareworker;
+import dbdr.security.model.AuthParam;
+import dbdr.security.model.DbdrAuth;
+import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,20 +35,26 @@ public class CareworkerController {
 
     private final CareworkerService careworkerService;
 
+
     @Operation(summary = "요양보호사 본인의 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping
+    @DbdrAuth(targetRole = Role.CAREWORKER)
     public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponse>> showCareworkerInfo(
             @Parameter(hidden = true) @LoginCareworker Careworker careworker) {
         log.info("Careworker Name: {}", careworker.getName());
+
         CareworkerMyPageResponse response = careworkerService.getMyPageInfo(careworker.getId());
         return ResponseEntity.ok(ApiUtils.success(response));
     }
 
+
     @Operation(summary = "요양보호사 본인의 근무일과 알림 시간 수정", security = @SecurityRequirement(name = "JWT"))
     @PutMapping
+    @DbdrAuth(targetRole = Role.CAREWORKER)
     public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponse>> updateCareworkerInfo(
             @Parameter(hidden = true) @LoginCareworker Careworker careworker,
             @Valid @RequestBody CareworkerUpdateRequest careworkerRequest) {
+
         CareworkerMyPageResponse updatedResponse = careworkerService.updateWorkingDaysAndAlertTime(careworker.getId(), careworkerRequest);
         return ResponseEntity.ok(ApiUtils.success(updatedResponse));
     }

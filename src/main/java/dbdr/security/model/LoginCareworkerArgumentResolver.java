@@ -1,5 +1,6 @@
 package dbdr.security.model;
 
+import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
@@ -23,7 +24,7 @@ public class LoginCareworkerArgumentResolver implements HandlerMethodArgumentRes
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(LoginCareworker.class) != null &&
-            UserDetails.class.isAssignableFrom(parameter.getParameterType());
+                Careworker.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override

@@ -134,6 +134,7 @@ public class Recipient extends BaseEntity {
         this.careworker = careworker;
     }//요양원용
 
+
     public void updateRecipientForAdmin(RecipientRequest recipientDTO, Institution institution, Careworker careworker, Guardian guardian) {
         this.institution = institution;
         this.institutionNumber = recipientDTO.getInstitutionNumber();
