@@ -53,6 +53,7 @@ public class Guardian extends BaseEntity {
     public Guardian(String loginId, String loginPassword, String phone, String name, Institution institution) {
         this.phone = phone;
         this.name = name;
+        this.institution = institution;
         this.alertTime = LocalTime.of(18, 0); // 오후 6시로 초기화
     }
 

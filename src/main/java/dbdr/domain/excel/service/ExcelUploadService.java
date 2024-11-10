@@ -132,7 +132,7 @@ public class ExcelUploadService {
             Guardian guardian = Guardian.builder()
                     .name(name)
                     .phone(phone)
-                    //.institution(institution) //가디언 빌더에 추가필요
+                    .institution(institution)
                     .build();
             guardianRepository.save(guardian);
 
