@@ -44,6 +44,7 @@ public class CareworkerController {
 
     @Operation(summary = "요양보호사 본인의 근무일과 알림 시간 수정", security = @SecurityRequirement(name = "JWT"))
     @PutMapping
+    @DbdrAuth(targetRole = Role.CAREWORKER)
     public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponse>> updateCareworkerInfo(
             @Parameter(hidden = true) @LoginCareworker Careworker careworker,
             @Valid @RequestBody CareworkerUpdateRequest careworkerRequest) {

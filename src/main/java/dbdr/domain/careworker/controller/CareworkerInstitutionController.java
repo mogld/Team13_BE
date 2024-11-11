@@ -6,6 +6,9 @@ import dbdr.domain.careworker.service.CareworkerService;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.global.util.api.ApiUtils;
 import dbdr.security.LoginInstitution;
+import dbdr.security.model.AuthParam;
+import dbdr.security.model.DbdrAuth;
+import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-//요양원 권한 추가
 @Tag(name = "[요양원] 요양보호사 관리  ", description = "요양보호사 정보 조회, 수정, 삭제, 추가")
 @RestController
 @RequestMapping("/${spring.app.version}/institution/careworker")
@@ -26,6 +28,7 @@ public class CareworkerInstitutionController {
 
     private final CareworkerService careworkerService;
 
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "특정 요양원아이디로 전체 요양보호사 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping("/institution")
     public ResponseEntity<ApiUtils.ApiResult<List<CareworkerResponse>>> getAllCareworkers(
@@ -34,6 +37,7 @@ public class CareworkerInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(institutions)) ;
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.CAREWORKER_ID, id="careworkerId")
     @Operation(summary = "요양보호사 아이디로 요양보호사 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping("/{careworkerId}")
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponse>> getCareworkerById(
@@ -43,7 +47,7 @@ public class CareworkerInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(careworker)) ;
     }
 
-
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "요양보호사 추가", security = @SecurityRequirement(name = "JWT"))
     @PostMapping
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponse>> createCareworker(
@@ -54,7 +58,7 @@ public class CareworkerInstitutionController {
 
     }
 
-
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.CAREWORKER_ID, id="careworkerId")
     @Operation(summary = "요양보호사 정보 수정", security = @SecurityRequirement(name = "JWT"))
     @PutMapping("/{careworkerId}")
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponse>> updateCareworker(
@@ -65,6 +69,7 @@ public class CareworkerInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(updatedCareworker));
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.CAREWORKER_ID, id="careworkerId")
     @Operation(summary = "요양보호사 삭제", security = @SecurityRequirement(name = "JWT"))
     @DeleteMapping("/{careworkerId}")
     public ResponseEntity<ApiUtils.ApiResult<String>> deleteCareworker(
