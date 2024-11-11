@@ -14,6 +14,7 @@ import dbdr.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,7 @@ public class ExcelUploadService {
     private final GuardianRepository guardianRepository;
     private final RecipientRepository recipientRepository;
     private final InstitutionRepository institutionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public CareworkerFileUploadResponse uploadCareworkerExcel(MultipartFile file, Long institutionId) {
@@ -79,22 +81,20 @@ public class ExcelUploadService {
 
     private void processCareworkerRow(Row row, List<ExcelCareworkerResponse> successList,
                                       List<ExcelCareworkerResponse> failedList, Set<String> seenPhones, Long institutionId) {
-        Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(0)));
+        String name = getCellValue(row.getCell(0));
+        String email = getCellValue(row.getCell(1));
+        String phone = getCellValue(row.getCell(2));
+        String loginPassword = getCellValue(row.getCell(3));
 
-        if (!rowInstitutionId.equals(institutionId)) { // 로그인한 요양원 ID 일치 여부 확인
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
-
-        String name = getCellValue(row.getCell(1));
-        String email = getCellValue(row.getCell(2));
-        String phone = getCellValue(row.getCell(3));
+        String encryptedPassword = passwordEncoder.encode(loginPassword);
 
         Institution institution = institutionRepository.findById(institutionId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND)); //로그인객체받아온후에 없어도되는 코드이려나..?
+                .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
 
         try {
             checkDuplicate(seenPhones, phone, ApplicationError.DUPLICATE_PHONE);
             validatePhone(phone, careworkerRepository.existsByPhone(phone));
+            validateEmail(email,careworkerRepository.existsByEmail(email));
             seenPhones.add(phone);
 
             Careworker careworker = Careworker.builder()
@@ -102,12 +102,13 @@ public class ExcelUploadService {
                     .name(name)
                     .email(email)
                     .phone(phone)
+                    .loginPassword(encryptedPassword)
                     .build();
             careworkerRepository.save(careworker);
 
-            successList.add(new ExcelCareworkerResponse(careworker.getId(), rowInstitutionId, name, email, phone));
+            successList.add(new ExcelCareworkerResponse(careworker.getId(), institution.getId(), name, email, phone));
         } catch (ApplicationException e) {
-            failedList.add(new ExcelCareworkerResponse(null, rowInstitutionId, name, email, phone));
+            failedList.add(new ExcelCareworkerResponse(null, institution.getId(), name, email, phone));
         }
     }
 
@@ -115,11 +116,9 @@ public class ExcelUploadService {
                                     List<ExcelGuardianResponse> failedList, Set<String> seenPhones, Long institutionId) {
         String name = getCellValue(row.getCell(0));
         String phone = getCellValue(row.getCell(1));
-        Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(2)));
+        String loginPassword = getCellValue(row.getCell(2));
 
-        if (!rowInstitutionId.equals(institutionId)) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+        String encryptedPassword = passwordEncoder.encode(loginPassword);
 
         Institution institution = institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
@@ -133,12 +132,13 @@ public class ExcelUploadService {
                     .name(name)
                     .phone(phone)
                     .institution(institution)
+                    .loginPassword(encryptedPassword)
                     .build();
             guardianRepository.save(guardian);
 
-            successList.add(new ExcelGuardianResponse(guardian.getId(), name, phone, rowInstitutionId));
+            successList.add(new ExcelGuardianResponse(guardian.getId(), name, phone, institution.getId()));
         } catch (ApplicationException e) {
-            failedList.add(new ExcelGuardianResponse(null,  name, phone, rowInstitutionId));
+            failedList.add(new ExcelGuardianResponse(null,  name, phone, institution.getId()));
         }
     }
 
@@ -150,13 +150,9 @@ public class ExcelUploadService {
         String careLevel = getCellValue(row.getCell(3));
         String careNumber = getCellValue(row.getCell(4));
         String startDate = getCellValue(row.getCell(5));
-        Long rowInstitutionId = Long.valueOf(getCellValue(row.getCell(6)));
-        Long careworkerId = Long.valueOf(getCellValue(row.getCell(7)));
-        Long guardianId = Long.valueOf(getCellValue(row.getCell(8)));
+        Long careworkerId = Long.valueOf(getCellValue(row.getCell(6)));
+        Long guardianId = Long.valueOf(getCellValue(row.getCell(7)));
 
-        if (!rowInstitutionId.equals(institutionId)) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
 
         Institution institution = institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
@@ -205,6 +201,12 @@ public class ExcelUploadService {
         }
         if (exists) {
             throw new ApplicationException(ApplicationError.DUPLICATE_PHONE);
+        }
+    }
+
+    private void validateEmail(String email, boolean exists) {
+        if (exists) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_EMAIL);
         }
     }
 

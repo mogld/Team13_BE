@@ -9,7 +9,10 @@ import dbdr.domain.institution.entity.Institution;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
 import dbdr.security.LoginInstitution;
+import dbdr.security.model.DbdrAuth;
+import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +62,7 @@ public class ExcelController {
                 .body(data);
     }
 
+
     @Operation(summary = "돌봄대상자 엑셀 다운로드")
     @GetMapping("/recipient/download")
     public ResponseEntity<byte[]> downloadRecipientTemplate() {
@@ -69,30 +73,33 @@ public class ExcelController {
                 .body(data);
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "요양관리사 엑셀 업로드")
     @PostMapping("/careworker/upload")
     public ResponseEntity<CareworkerFileUploadResponse> uploadCareworkerData(
-            @LoginInstitution Institution institution,
+            @Parameter(hidden = true) @LoginInstitution Institution institution,
             @RequestParam("file") MultipartFile file) {
         validateFile(file);
         CareworkerFileUploadResponse result = excelUploadService.uploadCareworkerExcel(file, institution.getId());
         return ResponseEntity.ok(result);
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "보호자 엑셀 업로드")
     @PostMapping("/guardian/upload")
     public ResponseEntity<GuardianFileUploadResponse> uploadGuardianData(
-            @LoginInstitution Institution institution,
+            @Parameter(hidden = true) @LoginInstitution Institution institution,
             @RequestParam("file") MultipartFile file) {
         validateFile(file);
         GuardianFileUploadResponse result = excelUploadService.uploadGuardianExcel(file, institution.getId());
         return ResponseEntity.ok(result);
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "돌봄대상자 엑셀 업로드")
     @PostMapping("/recipient/upload")
     public ResponseEntity<RecipientFileUploadResponse> uploadRecipientData(
-            @LoginInstitution Institution institution,
+            @Parameter(hidden = true) @LoginInstitution Institution institution,
             @RequestParam("file") MultipartFile file) {
         validateFile(file);
         RecipientFileUploadResponse result = excelUploadService.uploadRecipientExcel(file, institution.getId());
