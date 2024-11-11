@@ -106,6 +106,19 @@ public class Recipient extends BaseEntity {
         this.careworker = careworker;
     }
 
+    public Recipient(RecipientRequest dto, Institution institution, Careworker careworker, Guardian guardian) {
+        this.name = dto.getName();
+        this.birth = dto.getBirth();
+        this.gender = dto.getGender();
+        this.careLevel = dto.getCareLevel();
+        this.careNumber = dto.getCareNumber();
+        this.startDate = dto.getStartDate();
+        this.institution = institution;
+        this.institutionNumber = institution.getInstitutionNumber();
+        this.careworker = careworker;
+        this.guardian = guardian;
+    }
+
 
     public void updateRecipient(RecipientRequest recipientDTO) {
         this.name = recipientDTO.getName();
@@ -116,14 +129,16 @@ public class Recipient extends BaseEntity {
         this.startDate = recipientDTO.getStartDate();
     }
 
-    public void updateRecipientForInstitution(Careworker careworker) {
+    public void updateRecipientForInstitution(Careworker careworker, Guardian guardian) {
         this.careworker = careworker;
+        this.guardian = guardian;
     }//요양원용
 
-    public void updateRecipientForAdmin(RecipientRequest recipientDTO, Institution institution, Careworker careworker) {
+    public void updateRecipientForAdmin(RecipientRequest recipientDTO, Institution institution, Careworker careworker, Guardian guardian) {
         this.institution = institution;
         this.institutionNumber = recipientDTO.getInstitutionNumber();
         this.careworker = careworker;
+        this.guardian=guardian;
     } //관리자용
 
 

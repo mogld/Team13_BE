@@ -10,6 +10,7 @@ import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
 import dbdr.security.LoginInstitution;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -72,7 +73,7 @@ public class ExcelController {
     @Operation(summary = "요양관리사 엑셀 업로드")
     @PostMapping("/careworker/upload")
     public ResponseEntity<CareworkerFileUploadResponse> uploadCareworkerData(
-            @LoginInstitution Institution institution,
+            @Parameter(hidden = true) @LoginInstitution Institution institution,
             @RequestParam("file") MultipartFile file) {
         validateFile(file);
         CareworkerFileUploadResponse result = excelUploadService.uploadCareworkerExcel(file, institution.getId());
@@ -82,7 +83,7 @@ public class ExcelController {
     @Operation(summary = "보호자 엑셀 업로드")
     @PostMapping("/guardian/upload")
     public ResponseEntity<GuardianFileUploadResponse> uploadGuardianData(
-            @LoginInstitution Institution institution,
+            @Parameter(hidden = true) @LoginInstitution Institution institution,
             @RequestParam("file") MultipartFile file) {
         validateFile(file);
         GuardianFileUploadResponse result = excelUploadService.uploadGuardianExcel(file, institution.getId());
@@ -92,7 +93,7 @@ public class ExcelController {
     @Operation(summary = "돌봄대상자 엑셀 업로드")
     @PostMapping("/recipient/upload")
     public ResponseEntity<RecipientFileUploadResponse> uploadRecipientData(
-            @LoginInstitution Institution institution,
+            @Parameter(hidden = true) @LoginInstitution Institution institution,
             @RequestParam("file") MultipartFile file) {
         validateFile(file);
         RecipientFileUploadResponse result = excelUploadService.uploadRecipientExcel(file, institution.getId());

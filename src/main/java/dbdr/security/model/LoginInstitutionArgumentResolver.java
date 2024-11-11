@@ -1,5 +1,6 @@
 package dbdr.security.model;
 
+import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.institution.repository.InstitutionRepository;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
@@ -23,7 +24,7 @@ public class LoginInstitutionArgumentResolver implements HandlerMethodArgumentRe
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(LoginInstitution.class) != null &&
-            UserDetails.class.isAssignableFrom(parameter.getParameterType());
+            Institution.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override

@@ -13,5 +13,5 @@ public class ExcelGuardianResponse {
     private String name;
     private String phone;
     private Long institution;
-
+    private String loginPassword;
 }
