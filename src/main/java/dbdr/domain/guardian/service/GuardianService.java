@@ -103,7 +103,7 @@ public class GuardianService {
         guardianRepository.delete(guardian);
     }
 
-    private Guardian findGuardianById(Long guardianId) {
+    public Guardian findGuardianById(Long guardianId) {
         return guardianRepository.findById(guardianId)
             .orElseThrow(() -> new ApplicationException(ApplicationError.GUARDIAN_NOT_FOUND));
     }

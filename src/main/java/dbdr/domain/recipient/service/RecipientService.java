@@ -1,6 +1,8 @@
 package dbdr.domain.recipient.service;
 
 import dbdr.domain.careworker.entity.Careworker;
+import dbdr.domain.guardian.entity.Guardian;
+import dbdr.domain.guardian.service.GuardianService;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.recipient.dto.request.RecipientRequest;
 import dbdr.domain.recipient.dto.response.RecipientResponse;
@@ -23,6 +25,7 @@ public class RecipientService {
     private final RecipientRepository recipientRepository;
     private final CareworkerService careworkerService;
     private final InstitutionService institutionService;
+    private final GuardianService guardianService;
 
     // 전체 돌봄대상자 목록 조회 (관리자용)
     public List<RecipientResponse> getAllRecipients() {
@@ -50,8 +53,9 @@ public class RecipientService {
         if (!careworker.getInstitution().getId().equals(institution.getId())) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
+        Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
 
-        Recipient recipient = new Recipient(recipientDTO, institution, careworker);
+        Recipient recipient = new Recipient(recipientDTO, institution, careworker, guardian);
         recipientRepository.save(recipient);
         return toResponse(recipient);
     }
@@ -74,9 +78,10 @@ public class RecipientService {
         if (!careworker.getInstitution().getId().equals(institution.getId())) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
+        Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
         //관리자는 요양원, 요양보호사 업데이트 가능
         recipient.updateRecipient(recipientDTO);
-        recipient.updateRecipientForAdmin(recipientDTO, institution, careworker);
+        recipient.updateRecipientForAdmin(recipientDTO, institution, careworker, guardian);
 
         return toResponse(recipient);
     }
@@ -86,7 +91,6 @@ public class RecipientService {
     @Transactional
     public void deleteRecipient(Long recipientId) {
         Recipient recipient = findRecipientById(recipientId);
-        recipient.deactivate();
         recipientRepository.delete(recipient);
     }
 
@@ -147,8 +151,9 @@ public class RecipientService {
         if (!careworker.getInstitution().getId().equals(recipientDTO.getInstitutionId())) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
+        Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
 
-        Recipient recipient = new Recipient(recipientDTO, careworker);
+        Recipient recipient = new Recipient(recipientDTO, careworker, guardian);
         recipientRepository.save(recipient);
         return toResponse(recipient);
     }
@@ -163,8 +168,9 @@ public class RecipientService {
         if (!careworker.getInstitution().getId().equals(institution.getId())) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
+        Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
 
-        Recipient recipient = new Recipient(recipientDTO, institution, careworker);
+        Recipient recipient = new Recipient(recipientDTO, institution, careworker, guardian);
         recipientRepository.save(recipient);
         return toResponse(recipient);
     }
@@ -193,10 +199,11 @@ public class RecipientService {
         if (!careworker.getInstitution().getId().equals(institutionId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
+        Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
 
-        // 요양원은 본인 요양원에 속한 careworker 업데이트 가능
+        // 요양원은 본인 요양원에 속한 careworker, guardian 업데이트 가능
         recipient.updateRecipient(recipientDTO);
-        recipient.updateRecipientForInstitution(careworker);
+        recipient.updateRecipientForInstitution(careworker, guardian);
 
         return toResponse(recipient);
     }
@@ -205,7 +212,6 @@ public class RecipientService {
     @Transactional
     public void deleteRecipientForCareworker(Long recipientId, Long careworkerId) {
         Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
-        recipient.deactivate();
         recipientRepository.delete(recipient);
     }
 
@@ -213,7 +219,6 @@ public class RecipientService {
     @Transactional
     public void deleteRecipientForInstitution(Long recipientId, Long institutionId) {
         Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
-        recipient.deactivate();
         recipientRepository.delete(recipient);
     }
 

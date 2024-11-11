@@ -56,4 +56,8 @@ public class RecipientRequest {
     @Schema(description = "돌봄대상자의 요양보호사 아이디", example = "1")
     @NotNull(message = "요양보호사 ID는 필수 항목입니다.")
     private Long careworkerId;
+
+    @Schema(description = "돌봄대상자의 보호자 아이디", example = "1")
+    @NotNull(message = "보호자 ID는 필수 항목입니다.")
+    private Long guardianId;
 }

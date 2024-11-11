@@ -6,6 +6,9 @@ import dbdr.domain.recipient.dto.response.RecipientResponse;
 import dbdr.domain.recipient.service.RecipientService;
 import dbdr.global.util.api.ApiUtils;
 import dbdr.security.LoginInstitution;
+import dbdr.security.model.AuthParam;
+import dbdr.security.model.DbdrAuth;
+import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +28,7 @@ public class RecipientInstitutionController {
 
     private final RecipientService recipientService;
 
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "전체 돌봄대상자 조회 ", security = @SecurityRequirement(name = "JWT"))
     @GetMapping
     public ResponseEntity<ApiUtils.ApiResult<List<RecipientResponse>>> getAllRecipients(
@@ -33,6 +37,7 @@ public class RecipientInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(recipients));
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.RECIPIENT_ID, id = "recipientId")
     @Operation(summary = "돌봄대상자 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping("/{recipientId}")
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponse>> getRecipientById(
@@ -42,6 +47,7 @@ public class RecipientInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(recipient));
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "돌봄대상자 추가", security = @SecurityRequirement(name = "JWT"))
     @PostMapping
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponse>> createRecipient(
@@ -51,6 +57,7 @@ public class RecipientInstitutionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiUtils.success(newRecipient));
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.RECIPIENT_ID, id = "recipientId")
     @Operation(summary = "돌봄대상자 정보 수정", security = @SecurityRequirement(name = "JWT"))
     @PutMapping("/{recipientId}")
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponse>> updateRecipient(
@@ -61,6 +68,7 @@ public class RecipientInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(updatedRecipient));
     }
 
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.RECIPIENT_ID, id = "recipientId")
     @Operation(summary = "돌봄대상자 삭제", security = @SecurityRequirement(name = "JWT"))
     @DeleteMapping("/{recipientId}")
     public ResponseEntity<ApiUtils.ApiResult<String>> deleteRecipient(

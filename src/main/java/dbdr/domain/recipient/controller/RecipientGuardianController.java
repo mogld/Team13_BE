@@ -5,6 +5,8 @@ import dbdr.domain.recipient.dto.response.RecipientResponse;
 import dbdr.domain.recipient.service.RecipientService;
 import dbdr.global.util.api.ApiUtils;
 import dbdr.security.LoginGuardian;
+import dbdr.security.model.DbdrAuth;
+import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,6 +25,7 @@ public class RecipientGuardianController {
 
     private final RecipientService recipientService;
 
+    @DbdrAuth(targetRole = Role.GUARDIAN)
     @Operation(summary = "보호자가 확인 가능한 모든 돌봄대상자 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping
     public ResponseEntity<ApiUtils.ApiResult<List<RecipientResponse>>> getAllRecipients(
@@ -31,6 +34,7 @@ public class RecipientGuardianController {
         return ResponseEntity.ok(ApiUtils.success(recipients));
     }
 
+    @DbdrAuth(targetRole = Role.GUARDIAN)
     @Operation(summary = "보호자가 확인 가능한 특정 돌봄대상자 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping("/{recipientId}")
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponse>> getRecipientById(
