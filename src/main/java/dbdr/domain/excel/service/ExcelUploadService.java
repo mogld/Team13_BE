@@ -14,6 +14,7 @@ import dbdr.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,7 @@ public class ExcelUploadService {
     private final GuardianRepository guardianRepository;
     private final RecipientRepository recipientRepository;
     private final InstitutionRepository institutionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public CareworkerFileUploadResponse uploadCareworkerExcel(MultipartFile file, Long institutionId) {
@@ -85,6 +87,8 @@ public class ExcelUploadService {
         String phone = getCellValue(row.getCell(2));
         String loginPassword = getCellValue(row.getCell(3));
 
+        String encryptedPassword = passwordEncoder.encode(loginPassword);
+
         Institution institution = institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND)); //로그인객체받아온후에 없어도되는 코드이려나..?
 
@@ -99,13 +103,13 @@ public class ExcelUploadService {
                     .name(name)
                     .email(email)
                     .phone(phone)
-                    .loginPassword(loginPassword)
+                    .loginPassword(encryptedPassword)
                     .build();
             careworkerRepository.save(careworker);
 
-            successList.add(new ExcelCareworkerResponse(careworker.getId(), institution.getId(), name, email, phone, careworker.getLoginPassword()));
+            successList.add(new ExcelCareworkerResponse(careworker.getId(), institution.getId(), name, email, phone));
         } catch (ApplicationException e) {
-            failedList.add(new ExcelCareworkerResponse(null, institution.getId(), name, email, phone, null));
+            failedList.add(new ExcelCareworkerResponse(null, institution.getId(), name, email, phone));
         }
     }
 
@@ -115,8 +119,7 @@ public class ExcelUploadService {
         String phone = getCellValue(row.getCell(1));
         String loginPassword = getCellValue(row.getCell(2));
 
-
-
+        String encryptedPassword = passwordEncoder.encode(loginPassword);
 
         Institution institution = institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
@@ -130,13 +133,13 @@ public class ExcelUploadService {
                     .name(name)
                     .phone(phone)
                     .institution(institution)
-                    .loginPassword(loginPassword)
+                    .loginPassword(encryptedPassword)
                     .build();
             guardianRepository.save(guardian);
 
-            successList.add(new ExcelGuardianResponse(guardian.getId(), name, phone, institution.getId(), guardian.getLoginPassword()));
+            successList.add(new ExcelGuardianResponse(guardian.getId(), name, phone, institution.getId()));
         } catch (ApplicationException e) {
-            failedList.add(new ExcelGuardianResponse(null,  name, phone, institution.getId(), null));
+            failedList.add(new ExcelGuardianResponse(null,  name, phone, institution.getId()));
         }
     }
 
