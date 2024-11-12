@@ -202,6 +202,9 @@ public class RecipientService {
         }
         Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
 
+        if (!guardian.getInstitution().getId().equals(institutionId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
         // 요양원은 본인 요양원에 속한 careworker, guardian 업데이트 가능
         recipient.updateRecipientForInstitution(recipientDTO, careworker, guardian);
 
