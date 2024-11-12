@@ -116,6 +116,8 @@ public class CareworkerService {
 
     @Transactional
     public CareworkerResponse updateCareworkerByAdmin(Long careworkerId, CareworkerUpdateAdminRequest request) {
+        ensureUniquePhoneButNotId(request.getPhone(), careworkerId);
+        ensureUniqueEmailButNotId(request.getEmail(), careworkerId);
 
         Careworker careworker = findCareworkerById(careworkerId);
 

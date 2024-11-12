@@ -29,7 +29,7 @@ public class CareworkerInstitutionController {
 
     private final CareworkerService careworkerService;
 
-    @DbdrAuth(targetRole = Role.INSTITUTION)
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.LOGIN_INSTITUTION)
     @Operation(summary = "특정 요양원아이디로 전체 요양보호사 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping("/institution")
     public ResponseEntity<ApiUtils.ApiResult<List<CareworkerResponse>>> getAllCareworkers(
