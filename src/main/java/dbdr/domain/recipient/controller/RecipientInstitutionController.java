@@ -2,6 +2,7 @@ package dbdr.domain.recipient.controller;
 
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.recipient.dto.request.RecipientRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateInstitutionRequest;
 import dbdr.domain.recipient.dto.response.RecipientResponse;
 import dbdr.domain.recipient.service.RecipientService;
 import dbdr.global.util.api.ApiUtils;
@@ -63,7 +64,7 @@ public class RecipientInstitutionController {
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponse>> updateRecipient(
             @PathVariable("recipientId") Long recipientId,
             @Parameter(hidden = true) @LoginInstitution Institution institution,
-            @Valid @RequestBody RecipientRequest recipientDTO) {
+            @Valid @RequestBody RecipientUpdateInstitutionRequest recipientDTO) {
         RecipientResponse updatedRecipient = recipientService.updateRecipientForInstitution(recipientId, recipientDTO, institution.getId());
         return ResponseEntity.ok(ApiUtils.success(updatedRecipient));
     }

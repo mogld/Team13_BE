@@ -5,6 +5,8 @@ import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.guardian.entity.Guardian;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.recipient.dto.request.RecipientRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateCareworkerRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateInstitutionRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -130,7 +132,22 @@ public class Recipient extends BaseEntity {
         this.startDate = recipientDTO.getStartDate();
     }
 
-    public void updateRecipientForInstitution(Careworker careworker, Guardian guardian) {
+    public void updateRecipient(RecipientUpdateCareworkerRequest recipientDTO) {
+        this.name = recipientDTO.getName();
+        this.birth = recipientDTO.getBirth();
+        this.gender = recipientDTO.getGender();
+        this.careLevel = recipientDTO.getCareLevel();
+        this.careNumber = recipientDTO.getCareNumber();
+        this.startDate = recipientDTO.getStartDate();
+    }//요양보호사용
+
+    public void updateRecipientForInstitution(RecipientUpdateInstitutionRequest recipientDTO, Careworker careworker, Guardian guardian) {
+        this.name = recipientDTO.getName();
+        this.birth = recipientDTO.getBirth();
+        this.gender = recipientDTO.getGender();
+        this.careLevel = recipientDTO.getCareLevel();
+        this.careNumber = recipientDTO.getCareNumber();
+        this.startDate = recipientDTO.getStartDate();
         this.careworker = careworker;
         this.guardian = guardian;
     }//요양원용

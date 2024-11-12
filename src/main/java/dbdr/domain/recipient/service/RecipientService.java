@@ -5,6 +5,8 @@ import dbdr.domain.guardian.entity.Guardian;
 import dbdr.domain.guardian.service.GuardianService;
 import dbdr.domain.institution.entity.Institution;
 import dbdr.domain.recipient.dto.request.RecipientRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateCareworkerRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateInstitutionRequest;
 import dbdr.domain.recipient.dto.response.RecipientResponse;
 import dbdr.domain.recipient.entity.Recipient;
 import dbdr.domain.recipient.repository.RecipientRepository;
@@ -177,7 +179,7 @@ public class RecipientService {
 
     //요양보호사가 담당하는 돌봄대상자 정보 수정
     @Transactional
-    public RecipientResponse updateRecipientForCareworker(Long recipientId, RecipientRequest recipientDTO, Long careworkerId) {
+    public RecipientResponse updateRecipientForCareworker(Long recipientId, RecipientUpdateCareworkerRequest recipientDTO, Long careworkerId) {
         Careworker careworker = careworkerService.getCareworkerById(careworkerId);
         Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
 
@@ -191,10 +193,9 @@ public class RecipientService {
 
     // 요양원에 속한 돌봄대상자 정보 수정
     @Transactional
-    public RecipientResponse updateRecipientForInstitution(Long recipientId, RecipientRequest recipientDTO, Long institutionId) {
+    public RecipientResponse updateRecipientForInstitution(Long recipientId, RecipientUpdateInstitutionRequest recipientDTO, Long institutionId) {
         Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
         Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
-
 
         if (!careworker.getInstitution().getId().equals(institutionId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
@@ -202,8 +203,7 @@ public class RecipientService {
         Guardian guardian = guardianService.findGuardianById(recipientDTO.getGuardianId());
 
         // 요양원은 본인 요양원에 속한 careworker, guardian 업데이트 가능
-        recipient.updateRecipient(recipientDTO);
-        recipient.updateRecipientForInstitution(careworker, guardian);
+        recipient.updateRecipientForInstitution(recipientDTO, careworker, guardian);
 
         return toResponse(recipient);
     }

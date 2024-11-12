@@ -1,6 +1,7 @@
 package dbdr.domain.recipient.controller;
 
 import dbdr.domain.recipient.dto.request.RecipientRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateCareworkerRequest;
 import dbdr.domain.recipient.dto.response.RecipientResponse;
 import dbdr.domain.recipient.service.RecipientService;
 import dbdr.domain.careworker.entity.Careworker;
@@ -64,7 +65,7 @@ public class RecipientCareworkerController {
     public ResponseEntity<ApiUtils.ApiResult<RecipientResponse>> updateRecipient(
             @PathVariable("recipientId") Long recipientId,
             @Parameter(hidden = true) @LoginCareworker Careworker careworker,
-            @Valid @RequestBody RecipientRequest recipientDTO) {
+            @Valid @RequestBody RecipientUpdateCareworkerRequest recipientDTO) {
         RecipientResponse updatedRecipient = recipientService.updateRecipientForCareworker(recipientId, recipientDTO, careworker.getId());
         return ResponseEntity.ok(ApiUtils.success(updatedRecipient));
     }
