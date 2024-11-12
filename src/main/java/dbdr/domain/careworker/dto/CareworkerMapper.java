@@ -1,6 +1,7 @@
 package dbdr.domain.careworker.dto;
 
 import dbdr.domain.careworker.dto.request.CareworkerRequest;
+import dbdr.domain.careworker.dto.request.CareworkerUpdateAdminRequest;
 import dbdr.domain.careworker.dto.response.CareworkerResponse;
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.institution.entity.Institution;
@@ -27,7 +28,6 @@ public abstract class CareworkerMapper {
             @Mapping(target = "loginPassword", expression = "java(passwordEncoder.encode(request.getLoginPassword()))"),
             @Mapping(target = "institution", source = "institutionId")})
     public abstract Careworker toEntity(CareworkerRequest request);
-
     protected Institution mapInstitution(Long institutionId) {
         return institutionService.getInstitutionById(institutionId);
     }

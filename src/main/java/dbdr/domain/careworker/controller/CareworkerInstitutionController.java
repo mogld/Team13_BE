@@ -1,6 +1,7 @@
 package dbdr.domain.careworker.controller;
 
 import dbdr.domain.careworker.dto.request.CareworkerRequest;
+import dbdr.domain.careworker.dto.request.CareworkerUpdateInstitutionRequest;
 import dbdr.domain.careworker.dto.response.CareworkerResponse;
 import dbdr.domain.careworker.service.CareworkerService;
 import dbdr.domain.institution.entity.Institution;
@@ -64,8 +65,8 @@ public class CareworkerInstitutionController {
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponse>> updateCareworker(
             @PathVariable Long careworkerId,
             @Parameter(hidden = true) @LoginInstitution Institution institution,
-            @RequestBody CareworkerRequest careworkerDTO) {
-        CareworkerResponse updatedCareworker = careworkerService.updateCareworker(careworkerId, careworkerDTO);
+            @RequestBody CareworkerUpdateInstitutionRequest careworkerDTO) {
+        CareworkerResponse updatedCareworker = careworkerService.updateCareworkerByInstitution(careworkerId, careworkerDTO);
         return ResponseEntity.ok(ApiUtils.success(updatedCareworker));
     }
 
