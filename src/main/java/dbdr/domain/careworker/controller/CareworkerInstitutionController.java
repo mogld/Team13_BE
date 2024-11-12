@@ -54,7 +54,7 @@ public class CareworkerInstitutionController {
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponse>> createCareworker(
             @Parameter(hidden = true) @LoginInstitution Institution institution,
             @Valid @RequestBody CareworkerRequest careworkerDTO) {
-        CareworkerResponse newCareworker = careworkerService.createCareworker(careworkerDTO);
+        CareworkerResponse newCareworker = careworkerService.createCareworkerInstitution(careworkerDTO, institution.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiUtils.success(newCareworker));
 
     }

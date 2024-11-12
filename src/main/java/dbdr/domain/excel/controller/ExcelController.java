@@ -42,7 +42,7 @@ public class ExcelController {
         }
     }
 
-    @Operation(summary = "요양관리사 엑셀 다운로드")
+    @Operation(summary = "요양보호사 엑셀 다운로드")
     @GetMapping("/careworker/download")
     public ResponseEntity<byte[]> downloadCareworkerTemplate() {
         byte[] data = excelDownloadService.generateCareworkerTemplate();
@@ -74,7 +74,7 @@ public class ExcelController {
     }
 
     @DbdrAuth(targetRole = Role.INSTITUTION)
-    @Operation(summary = "요양관리사 엑셀 업로드")
+    @Operation(summary = "요양보호사 엑셀 업로드")
     @PostMapping("/careworker/upload")
     public ResponseEntity<CareworkerFileUploadResponse> uploadCareworkerData(
             @Parameter(hidden = true) @LoginInstitution Institution institution,

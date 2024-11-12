@@ -32,7 +32,7 @@ public class RecipientUpdateCareworkerRequest {
     @NotBlank(message = "장기요양등급은 필수 항목입니다.")
     private String careLevel;
 
-    @Schema(description = "장기요양번호", example = "200000")
+    @Schema(description = "장기요양번호", example = "123400000")
     @NotBlank(message = "장기요양번호는 필수 항목입니다.")
     @Pattern(regexp = "^[A-Z0-9-]+$", message = "올바르지 않은 형식입니다.")
     private String careNumber;

@@ -83,6 +83,24 @@ public class CareworkerService {
     }
 
     @Transactional
+    public CareworkerResponse createCareworkerInstitution(CareworkerRequest careworkerRequestDTO, Long institutionId) {
+
+        if (!careworkerRequestDTO.getInstitutionId().equals(institutionId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+        ensureUniqueEmail(careworkerRequestDTO.getEmail());
+        ensureUniquePhone(careworkerRequestDTO.getPhone());
+
+        Careworker careworker = careworkerMapper.toEntity(careworkerRequestDTO);
+
+        careworkerRepository.save(careworker);
+        alarmService.createCareworkerAlarm(careworker);
+
+        return careworkerMapper.toResponse(careworker);
+    }
+
+
+    @Transactional
     public CareworkerResponse updateCareworker(Long careworkerId, CareworkerRequest request) {
         ensureUniquePhoneButNotId(request.getPhone(), careworkerId);
         ensureUniqueEmailButNotId(request.getEmail(), careworkerId);
