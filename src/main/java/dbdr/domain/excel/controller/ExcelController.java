@@ -9,6 +9,7 @@ import dbdr.domain.institution.entity.Institution;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
 import dbdr.security.LoginInstitution;
+import dbdr.security.model.AuthParam;
 import dbdr.security.model.DbdrAuth;
 import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "엑셀 양식 다운로드 및 업로드", description = "요양 관리사, 보호자, 돌봄 대상자 정보를 엑셀 파일을 통해 대량으로 업로ㅇ할 수 있습니다.")
+@Tag(name = "엑셀 양식 다운로드 및 업로드", description = "요양 관리사, 보호자, 돌봄 대상자 정보를 엑셀 파일을 통해 대량으로 업로드할 수 있습니다.")
 @RestController
 @RequestMapping("/${spring.app.version}/excel")
 @RequiredArgsConstructor
@@ -74,7 +75,7 @@ public class ExcelController {
                 .body(data);
     }
 
-    @DbdrAuth(targetRole = Role.INSTITUTION)
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.LOGIN_INSTITUTION)
     @Operation(summary = "요양보호사 엑셀 업로드")
     @PostMapping("/careworker/upload")
     public ResponseEntity<CareworkerFileUploadResponse> uploadCareworkerData(
@@ -85,7 +86,7 @@ public class ExcelController {
         return ResponseEntity.ok(result);
     }
 
-    @DbdrAuth(targetRole = Role.INSTITUTION)
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.LOGIN_INSTITUTION)
     @Operation(summary = "보호자 엑셀 업로드")
     @PostMapping("/guardian/upload")
     public ResponseEntity<GuardianFileUploadResponse> uploadGuardianData(
@@ -96,7 +97,7 @@ public class ExcelController {
         return ResponseEntity.ok(result);
     }
 
-    @DbdrAuth(targetRole = Role.INSTITUTION)
+    @DbdrAuth(targetRole = Role.INSTITUTION, authParam = AuthParam.LOGIN_INSTITUTION)
     @Operation(summary = "돌봄대상자 엑셀 업로드")
     @PostMapping("/recipient/upload")
     public ResponseEntity<RecipientFileUploadResponse> uploadRecipientData(
