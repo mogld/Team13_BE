@@ -32,7 +32,7 @@ public class RecipientUpdateInstitutionRequest {
     @NotBlank(message = "장기요양등급은 필수 항목입니다.")
     private String careLevel;
 
-    @Schema(description = "장기요양번호", example = "200000")
+    @Schema(description = "장기요양번호", example = "123400000")
     @NotBlank(message = "장기요양번호는 필수 항목입니다.")
     @Pattern(regexp = "^[A-Z0-9-]+$", message = "올바르지 않은 형식입니다.")
     private String careNumber;
@@ -41,11 +41,11 @@ public class RecipientUpdateInstitutionRequest {
     @NotNull(message = "입소일은 필수 항목입니다.")
     private LocalDate startDate;
 
-    @Schema(description = "돌봄대상자의 요양보호사 아이디", example = "1")
+    @Schema(description = "돌봄대상자의 요양보호사 아이디", example = "8")
     @NotNull(message = "요양보호사 ID는 필수 항목입니다.")
     private Long careworkerId;
 
-    @Schema(description = "돌봄대상자의 보호자 아이디", example = "1")
+    @Schema(description = "돌봄대상자의 보호자 아이디", example = "11")
     @NotNull(message = "보호자 ID는 필수 항목입니다.")
     private Long guardianId;
 

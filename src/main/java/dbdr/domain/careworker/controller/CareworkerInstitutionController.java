@@ -48,13 +48,13 @@ public class CareworkerInstitutionController {
         return ResponseEntity.ok(ApiUtils.success(careworker)) ;
     }
 
-    @DbdrAuth(targetRole = Role.INSTITUTION,authParam = AuthParam.LOGIN_INSTITUTION)
+    @DbdrAuth(targetRole = Role.INSTITUTION)
     @Operation(summary = "요양보호사 추가", security = @SecurityRequirement(name = "JWT"))
     @PostMapping
     public ResponseEntity<ApiUtils.ApiResult<CareworkerResponse>> createCareworker(
             @Parameter(hidden = true) @LoginInstitution Institution institution,
             @Valid @RequestBody CareworkerRequest careworkerDTO) {
-        CareworkerResponse newCareworker = careworkerService.createCareworker(careworkerDTO);
+        CareworkerResponse newCareworker = careworkerService.createCareworkerInstitution(careworkerDTO, institution.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiUtils.success(newCareworker));
 
     }
