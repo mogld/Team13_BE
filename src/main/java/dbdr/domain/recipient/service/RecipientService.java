@@ -68,6 +68,7 @@ public class RecipientService {
     //관리자용
     @Transactional
     public RecipientResponse updateRecipientForAdmin(Long recipientId, RecipientRequest recipientDTO) {
+        ensureUniqueCareNumberNotId(recipientDTO.getCareNumber(), recipientId);
         Recipient recipient = findRecipientById(recipientId);
         Institution institution = institutionService.getInstitutionById(recipientDTO.getInstitutionId());
         if (institution == null) {
@@ -190,6 +191,7 @@ public class RecipientService {
     //요양보호사가 담당하는 돌봄대상자 정보 수정
     @Transactional
     public RecipientResponse updateRecipientForCareworker(Long recipientId, RecipientUpdateCareworkerRequest recipientDTO, Long careworkerId) {
+        ensureUniqueCareNumberNotId(recipientDTO.getCareNumber(), recipientId);
         Careworker careworker = careworkerService.getCareworkerById(careworkerId);
         Recipient recipient = findRecipientByIdAndCareworker(recipientId, careworkerId);
 
@@ -204,6 +206,7 @@ public class RecipientService {
     // 요양원에 속한 돌봄대상자 정보 수정
     @Transactional
     public RecipientResponse updateRecipientForInstitution(Long recipientId, RecipientUpdateInstitutionRequest recipientDTO, Long institutionId) {
+        ensureUniqueCareNumberNotId(recipientDTO.getCareNumber(), recipientId);
         Recipient recipient = findRecipientByIdAndInstitution(recipientId, institutionId);
         Careworker careworker = careworkerService.getCareworkerById(recipientDTO.getCareworkerId());
 
@@ -256,6 +259,13 @@ public class RecipientService {
             throw new ApplicationException(ApplicationError.DUPLICATE_CARE_NUMBER);
         }
     }
+
+    private void ensureUniqueCareNumberNotId(String careNumber, Long id) {
+        if (recipientRepository.existsByCareNumberAndIdNot(careNumber, id)) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_CARE_NUMBER);
+        }
+    }
+
 
     private RecipientResponse toResponse(Recipient recipient) {
         return new RecipientResponse(

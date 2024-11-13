@@ -153,17 +153,24 @@ public class ExcelUploadService {
         Long careworkerId = Long.valueOf(getCellValue(row.getCell(6)));
         Long guardianId = Long.valueOf(getCellValue(row.getCell(7)));
 
-
         Institution institution = institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new ApplicationException(ApplicationError.INSTITUTION_NOT_FOUND));
 
-        Careworker careworker = careworkerRepository.findById(careworkerId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.CAREWORKER_NOT_FOUND));
-
-        Guardian guardian = guardianRepository.findById(guardianId)
-                .orElseThrow(() -> new ApplicationException(ApplicationError.GUARDIAN_NOT_FOUND));
+        Optional<Careworker> careworkerOpt = careworkerRepository.findById(careworkerId);
+        Optional<Guardian> guardianOpt = guardianRepository.findById(guardianId);
 
         try {
+            // 요양보호사나 보호자가 없을 경우 예외 대신 실패 목록에 추가하고 리턴
+            if (careworkerOpt.isEmpty() || guardianOpt.isEmpty()) {
+                failedList.add(new ExcelRecipientResponse(
+                        null, name, LocalDate.parse(birth), gender, careLevel, careNumber, LocalDate.parse(startDate),
+                        institution.getId(), careworkerOpt.map(Careworker::getId).orElse(null), guardianOpt.map(Guardian::getId).orElse(null)));
+                return;
+            }
+
+            Careworker careworker = careworkerOpt.get();
+            Guardian guardian = guardianOpt.get();
+
             checkDuplicate(seenCareNumbers, careNumber, ApplicationError.DUPLICATE_CARE_NUMBER);
             validateCareNumber(careNumber, recipientRepository.existsByCareNumber(careNumber));
             seenCareNumbers.add(careNumber);
@@ -185,7 +192,7 @@ public class ExcelUploadService {
                     recipient.getId(), name, LocalDate.parse(birth), gender, careLevel, careNumber, LocalDate.parse(startDate), institution.getId(), careworker.getId(), guardian.getId()));
         } catch (ApplicationException e) {
             failedList.add(new ExcelRecipientResponse(
-                    null, name, LocalDate.parse(birth), gender, careLevel, careNumber, LocalDate.parse(startDate), institution.getId(), careworker.getId(), guardian.getId()));
+                    null, name, LocalDate.parse(birth), gender, careLevel, careNumber, LocalDate.parse(startDate), institution.getId(), careworkerOpt.map(Careworker::getId).orElse(null), guardianOpt.map(Guardian::getId).orElse(null)));
         }
     }
 

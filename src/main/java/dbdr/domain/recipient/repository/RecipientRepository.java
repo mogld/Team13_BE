@@ -10,6 +10,8 @@ public interface RecipientRepository extends JpaRepository<Recipient, Long> {
 
     boolean existsByCareNumber(String careNumber);
 
+    boolean existsByCareNumberAndIdNot(String careNumber, Long id);
+
     List<Recipient> findByCareworkerId(Long careworkerId);
 
     List<Recipient> findByInstitutionId(Long institutionId);
