@@ -25,7 +25,7 @@ public class ExcelDownloadService {
             setCellStyleText(workbook, sheet, 2);
             setCellStyleText(workbook, sheet, 3);
 
-            String[] sampleData = {"1", "홍길동", "hong@example.com", "01012345678", "1234"};
+            String[] sampleData = {"홍길동", "hong@example.com", "01012345678", "1234"};
             createSampleData(sheet, sampleData);
 
             return convertWorkbookToByteArray(workbook);
